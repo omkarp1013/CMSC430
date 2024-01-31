@@ -24,7 +24,7 @@
 ;; Explode a string into a list of length-1 strings
 (define (explode s)
   (define helper i s
-  
+    )
   ) 
 
   (helper 1 s)
