@@ -17,8 +17,9 @@
 ;; [Listof Number] -> Natural
 ;; Compute the length of given list of numbers
 (define (length-lon ls)
-  ;; TODO
-  0)
+  (match ls
+    ['() 0]
+    [(cons x xs) (+ 1 (length-lon xs))]))
 
 (module+ test
   (check-equal? (length-lon '()) 0)

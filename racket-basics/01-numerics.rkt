@@ -11,9 +11,7 @@
 (define (fact n)
   (match n
     [0 1]
-    [n (* n (fact (- n 1)))]
-  )
-  )
+    [n (* n (fact (- n 1)))]))
 
 (module+ test
   (check-equal? (fact 0) 1)
@@ -27,7 +25,7 @@
   (match n
     [0 0]
     [1 1]
-    [n (+ (fib (- n 1) (fib (- n 2))))]
+    [n (+ (fib (- n 1)) (fib (- n 2)))]
   )
   )
 

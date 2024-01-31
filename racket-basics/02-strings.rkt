@@ -11,8 +11,8 @@
 ;; String String -> String
 ;; Select the longer of the two strings (or first if same length)
 (define (longer s1 s2)
-  ;; TODO
-  s1)
+  (if (> (string-length s2) (string-length s1) s2 s1))
+)
 
 (module+ test
   (check-equal? (longer "" "") "")
@@ -23,7 +23,11 @@
 ;; String -> [Listof String]
 ;; Explode a string into a list of length-1 strings
 (define (explode s)
-  ;; TODO
+  (define helper i s
+  
+  ) 
+
+  (helper 1 s)
   '())
 
 (module+ test
