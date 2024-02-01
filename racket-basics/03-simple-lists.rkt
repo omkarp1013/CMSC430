@@ -19,7 +19,7 @@
 (define (length-lon ls)
   (match ls
     ['() 0]
-    [(cons x xs) (+ 1 (length-lon xs))]))
+    [(cons n xs) (+ 1 (length-lon xs))]))
 
 (module+ test
   (check-equal? (length-lon '()) 0)
@@ -30,8 +30,9 @@
 ;; [Listof Number] -> Number
 ;; Compute the sum of given list of numbers
 (define (sum ls)
-  ;; TODO
-  0)
+  (match ls
+    ['() 0]
+    [(cons n ls) (+ n (sum ls))]))
 
 (module+ test
   (check-equal? (sum '()) 0)
@@ -43,8 +44,9 @@
 ;; Compute the pairwise sum of given list of numbers
 ;; ASSUME: lists have equal length
 (define (zip-add ls1 ls2)
-  ;; TODO
-  '())
+  (match (list ls1 ls2)
+    [(list '() '()) '(0)]
+    [(list (cons n1 x1) (cons n2 x2)) (list (+ n1 n2) (zip-add x1 x2))]))
 
 (module+ test
   (check-equal? (zip-add '() '()) '())
@@ -55,8 +57,9 @@
 ;; Compute the pairwise list of given list of numbers
 ;; ASSUME: lists have equal length
 (define (zip-lon ls1 ls2)
-  ;; TODO
-  '())
+  (match (list ls1 ls2)
+    [(list '() '()) '()]
+    [(cons (cons n1 x1) (cons n2 x2)) (list (list (n1 n2)) (zip-lon x1 x2))])'())
 
 (module+ test
   (check-equal? (zip-lon '() '()) '())
@@ -66,8 +69,10 @@
 ;; [Pairof Real [Listof Real]] -> Real
 ;; Compute a minimum element of non-empty list of numbers
 (define (min-lon xs)
-  ;; TODO
-  0)
+  (define helper xs res
+    (match xs
+      ['() res]
+      [(cons n xs) (if (< n res) (helper xs n) (helper xs res))])))
 
 (module+ test
   (check-equal? (min-lon '(1)) 1)
