@@ -37,8 +37,20 @@
 ;; String -> [Listof [List String String]]
 ;; Compute list of bigrams (pairs of adjacent letters) in a string
 (define (bigrams s)
-  ;; TODO
-  '())
+  (define helper i s res
+    (match (<= (string-length s) 2)
+      [#t '()]
+      [#f 
+        (match (string-length i)
+          [(- string-length 1) res]
+          [(< (- string-length 1)) (helper (+ i 1) (cons res (cons (string-ref i) (string-ref (+ i 1)))))]
+        )
+      ]
+    )
+  )
+
+  (helper 0 s '())
+)
 
 (module+ test
   (check-equal? (bigrams "") '())
