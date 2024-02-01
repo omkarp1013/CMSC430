@@ -23,12 +23,11 @@
 ;; String -> [Listof String]
 ;; Explode a string into a list of length-1 strings
 (define (explode s)
-  (define helper i s
-  
-  ) 
-
-  (helper 1 s)
-  '())
+  (define helper i s res
+    (match (= i (string-length s))
+      [#t res]
+      [#f (helper (+ i 1) s (cons (string (string-ref s i))))])) 
+  (helper 0 s '())'())
 
 (module+ test
   (check-equal? (explode "") '())
