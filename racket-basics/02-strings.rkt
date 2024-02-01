@@ -26,7 +26,7 @@
   (define helper i s res
     (match (= i (string-length s))
       [#t res]
-      [#f (helper (+ i 1) s (cons (string (string-ref s i))))])) 
+      [#f (helper (+ i 1) s (cons (string (string-ref s i)) res))])) 
   (helper 0 s '())'())
 
 (module+ test
