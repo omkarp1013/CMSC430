@@ -33,9 +33,12 @@
 ;; BTNumber -> Natural
 ;; Compute the height of a binary tree (leaf has height 0)
 (define (btn-height bt)
-  ;; TODO
-  0)
-
+  (match bt
+    [(leaf) 0]
+    [(node n left right)
+      (+ 1 (max (btn-height left) (btn-height right)))]
+  )
+)
 (module+ test
   (check-equal? (btn-height (leaf)) 0)
   (check-equal? (btn-height (node 5 (leaf) (leaf))) 1)
@@ -44,8 +47,12 @@
 ;; BTNumber -> Natural
 ;; Count the nodes of a binary tree
 (define (btn-count bt)
-  ;; TODO
-  0)
+  (match bt
+    [(leaf) 0]
+    [(node n left right)
+      (+ 1 ( + (btn-count left) (btn-count right)))]
+  )
+)
 
 (module+ test
   (check-equal? (btn-count (leaf)) 0)
@@ -55,8 +62,12 @@
 ;; BTNumber -> BTNumber
 ;; Compute the mirror image of binary tree
 (define (btn-mirror bt)
-  ;; TODO
-  (leaf))
+  (match bt
+    [(leaf) leaf]
+    [(node n left right)
+      (node n (btn-mirror right) (btn-mirror left))]
+  )  
+)
 
 (module+ test
   (check-equal? (btn-mirror (leaf)) (leaf))
@@ -67,8 +78,12 @@
 ;; BTNumber -> Number
 ;; Sum the numbers of a binary tree
 (define (btn-sum bt)
-  ;; TODO
-  0)
+  (match bt
+    [(leaf) 0]
+    [(node n left right)
+      (+ n (btn-sum left) (btn-sum right))]
+  )
+)
 
 (module+ test
   (check-equal? (btn-sum (leaf)) 0)
