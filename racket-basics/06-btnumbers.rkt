@@ -94,7 +94,7 @@
 ;; Generate a full bt of height h containing given number n at each node
 (define (btn-gen-full h n)
   ;; TODO
-  (leaf))
+)
 
 (module+ test
   (check-equal? (btn-gen-full 0 8) (leaf))
@@ -104,7 +104,11 @@
 ;; BTNumber Number -> Boolean
 ;; Does the bt contain number n?
 (define (btn-contains? bt n)
-  ;; TODO
+  (match bt
+    [(leaf) #f]
+    [(node val left right)
+      (if (= val n) #f (or (btn-contains left) (btn-contains right)))]
+  )
   #f)
 
 (module+ test
