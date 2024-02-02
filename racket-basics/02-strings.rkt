@@ -11,7 +11,7 @@
 ;; String String -> String
 ;; Select the longer of the two strings (or first if same length)
 (define (longer s1 s2)
-  (if (> (string-length s2) (string-length s1) s2 s1))
+  (if (> (string-length s2) (string-length s1)) s2 s1)
 )
 
 (module+ test
@@ -22,12 +22,18 @@
 
 ;; String -> [Listof String]
 ;; Explode a string into a list of length-1 strings
+
+(define (helper_explode i s res)
+  (match (= i (string-length s))
+    [#t res]
+    [#f (helper_explode (+ i 1) s (append res (list (string (string-ref s i)))))]
+  )
+)
+
+
 (define (explode s)
-  (define helper i s res
-    (match (= i (string-length s))
-      [#t res]
-      [#f (helper (+ i 1) s (cons (string (string-ref s i)) res))])) 
-  (helper 0 s '())'())
+  (helper_explode 0 s '())
+)
 
 (module+ test
   (check-equal? (explode "") '())
@@ -36,20 +42,20 @@
 
 ;; String -> [Listof [List String String]]
 ;; Compute list of bigrams (pairs of adjacent letters) in a string
-(define (bigrams s)
-  (define helper i s res
-    (match (<= (string-length s) 2)
-      [#t '()]
-      [#f 
-        (match (string-length i)
-          [(- string-length 1) res]
-          [(< (- string-length 1)) (helper (+ i 1) (cons res (cons (string-ref i) (string-ref (+ i 1)))))]
-        )
-      ]
-    )
+(define (helper_bigrams i s res)
+  (match (< (string-length s) 2)
+    [#t '()]
+    [#f 
+      (match (= i (- (string-length s) 1))
+        [#t res]
+        [#f (helper_bigrams (+ i 1) s (append res (list (cons (substring s i (+ i 1)) (cons (substring s (+ i 1) (+ i 2)) '())))))]
+      )
+    ]
   )
+)
 
-  (helper 0 s '())
+(define (bigrams s)
+  (helper_bigrams 0 s '())
 )
 
 (module+ test
