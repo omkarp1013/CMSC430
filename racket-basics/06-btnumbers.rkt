@@ -63,7 +63,7 @@
 ;; Compute the mirror image of binary tree
 (define (btn-mirror bt)
   (match bt
-    [(leaf) leaf]
+    [(leaf) (leaf)]
     [(node n left right)
       (node n (btn-mirror right) (btn-mirror left))]
   )  
@@ -93,7 +93,11 @@
 ;; Natural Number -> BTNumber
 ;; Generate a full bt of height h containing given number n at each node
 (define (btn-gen-full h n)
-  ;; TODO
+  (match h
+    [0 (leaf)]
+    [k 
+      (node n (btn-gen-full (- h 1) n) (btn-gen-full (- h 1) n))]
+  )
 )
 
 (module+ test
@@ -107,9 +111,9 @@
   (match bt
     [(leaf) #f]
     [(node val left right)
-      (if (= val n) #f (or (btn-contains left) (btn-contains right)))]
+      (if (= val n) #t (or (btn-contains? left n) (btn-contains? right n)))]
   )
-  #f)
+)
 
 (module+ test
   (check-equal? (btn-contains? (leaf) 8) #f)
@@ -121,8 +125,12 @@
 ;; Generate the list of numbers in bt in preorder
 ;; HINT: append is a function that might be helpful
 (define (btn-preorder btn)
-  ;; TODO
-  '())
+  (match btn
+    [(leaf) '()]
+    [(node n left right)
+      (append (list n) (btn-preorder left) (btn-preorder right))]
+  )
+)
 
 (module+ test
   (check-equal? (btn-preorder (leaf)) '())
