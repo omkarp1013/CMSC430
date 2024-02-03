@@ -8,9 +8,18 @@
 
 ;; ∀ (α) (α -> Real) [Pairof α [Listof α]] -> α
 ;; Find element that minimizes the given measure (take first if more than one)
+
+(define (helper_minimize f xs res)
+ (match xs
+  ['() (first res)]
+  [(cons curr xs)
+    (if (< (f curr) (last res)) (helper_minimize f xs (list curr (f curr)) (helper_minimize f xs res)))]
+  )
+)
+
 (define (minimize f xs)
-  ;; TODO
-  (first xs))
+  (helper_minimize f xs (list (first xs) (f (first xs))))
+)
 
 (module+ test
   (check-equal? (minimize abs '(1 -2 3)) 1)
@@ -50,8 +59,12 @@
 ;; Compose a list of functions into a single function
 ;; ((pipe (list f1 f2 f3)) x) ≡ (f1 (f2 (f3 x)))
 (define (pipe fs)
-  ;; TODO
-  (λ (x) x))
+  (match fs
+    ['() '()]
+    [(list fi fk)
+      (list fi (pipe fk))]
+  )
+)
 
 (module+ test
   (check-equal? ((pipe (list number->string sqr add1)) 5) "36")

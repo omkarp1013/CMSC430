@@ -19,8 +19,11 @@
 ;; Natural -> N
 ;; Convert natural to Peano
 (define (nat->peano n)
-  ;; TODO
-  (Z))
+  match (n
+    [0 (Z)]
+    [k (S (nat->peano (- n 1)))]
+  )
+)
 
 (module+ test
   (check-equal? (nat->peano 0) (Z))
@@ -31,8 +34,11 @@
 ;; N -> Natural
 ;; Convert Peano to natural
 (define (peano->nat n)
-  ;; TODO
-  0)
+  (match n
+    [(Z) 0]
+    [(S (rest)) (+ 1 (peano->nat rest))]
+  )
+)
 
 (module+ test
   (check-equal? (peano->nat (Z)) 0)
@@ -45,8 +51,14 @@
 ;; N N -> N
 ;; Add two Peano numbers together
 (define (plus n1 n2)
-  ;; TODO
-  (Z))
+  (match (list n1 n2)
+    [((Z) (Z)) (Z)
+     ((Z) (S (rest))) (S (rest))
+     ((S (rest)) Z) (S (rest))
+     ((S (rest1)) (S (rest2))) (S (plus rest1 rest2)) 
+    ]
+  )
+)
 
 (module+ test
   (check-equal? (plus (Z) (Z)) (Z))
