@@ -19,7 +19,7 @@
 ;; Natural -> N
 ;; Convert natural to Peano
 (define (nat->peano n)
-  match (n
+  (match n
     [0 (Z)]
     [k (S (nat->peano (- n 1)))]
   )
@@ -36,7 +36,7 @@
 (define (peano->nat n)
   (match n
     [(Z) 0]
-    [(S (rest)) (+ 1 (peano->nat rest))]
+    [(S rest) (+ 1 (peano->nat rest))]
   )
 )
 
@@ -51,12 +51,11 @@
 ;; N N -> N
 ;; Add two Peano numbers together
 (define (plus n1 n2)
-  (match (list n1 n2)
-    [((Z) (Z)) (Z)
-     ((Z) (S (rest))) (S (rest))
-     ((S (rest)) Z) (S (rest))
-     ((S (rest1)) (S (rest2))) (S (plus rest1 rest2)) 
-    ]
+  (match (list n1 n2) 
+    [(list (Z) (Z)) (Z)]
+    [(list (Z) (S rest)) (S rest)]
+    [(list (S rest) (Z)) (S rest)]
+    [(list (S rest1) (S rest2)) (S (plus (S rest1) rest2))]
   )
 )
 
@@ -69,8 +68,13 @@
 ;; N N -> N
 ;; Multiply two Peano numbers together
 (define (mult n1 n2)
-  ;; TODO
-  (Z))
+  (match (list n1 n2)
+    [(list (Z) (Z)) (Z)]
+    [(list (Z) (S rest)) (Z)]
+    [(list (S rest) (Z)) (Z)]
+    [(list (S rest1) (S rest2)) (plus (S rest1) (mult rest1 rest2))]
+  )
+)
 
 (module+ test
   (check-equal? (mult (Z) (Z)) (Z))
@@ -80,8 +84,11 @@
 
 ;; ∀ (α) N (α -> α) -> (α -> α)
 (define (iter n f)
-  ;; TODO
-  (λ (a) a))
+  (match n
+    [(Z) (lambda (x) x)]
+    [(S rest) (lambda (x) (f ((iter rest f) x)))]
+  )
+)
 
 (module+ test
   ;; Natural -> Natural

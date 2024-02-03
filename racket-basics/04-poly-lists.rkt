@@ -62,7 +62,7 @@
   (match fs
     ['() '()]
     [(list fi fk)
-      (list fi (pipe fk))]
+      (lambda (x) (fi ((pipe fk) x)))]
   )
 )
 

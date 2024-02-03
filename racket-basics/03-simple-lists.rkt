@@ -98,8 +98,12 @@
 ;; Insert number into sorted list
 ;; ASSUME: given list is sorted in descending order
 (define (insert-desc n xs)
-  ;; TODO
-  xs)
+  (match xs
+    ['() (list n)]
+    
+  )
+)
+
 
 (module+ test
   (check-equal? (insert-desc 5 '()) '(5))
