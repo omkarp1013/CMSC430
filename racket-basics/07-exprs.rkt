@@ -96,8 +96,15 @@
 ;; Expr -> [Listof Integer]
 ;; Computes a list of all integer literals that appear in the expression
 (define (expr-integers e)
-  ;; TODO
-  '())
+  (match e
+    [(Int i) (list i)]
+    [(Bool b) '()]
+    [(Var v) '()]
+    [(App e1 e2)
+      (append (expr-integers e1) (expr-integers e2))]
+    [(Lam x e) (expr-integers e)]
+  )
+)
 
 (module+ test
   (check list-set-equal? (expr-integers (sexpr->expr 123)) '(123))
@@ -108,8 +115,13 @@
 ;; Expr -> [Listof Variable]
 ;; Compute a list of all lambda-bound variables in the expression
 (define (expr-lambda-vars e)
-  ;; TODO
-  '())
+  (match e
+    [(Int i) '()]
+    [(Bool b) '()]
+    [(Var v) '()]
+    [(App e1 e2) ]
+  )
+)
 
 (module+ test
   (check list-set-equal? (expr-lambda-vars (sexpr->expr 123)) '())
