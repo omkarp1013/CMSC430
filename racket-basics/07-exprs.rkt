@@ -119,7 +119,8 @@
     [(Int i) '()]
     [(Bool b) '()]
     [(Var v) '()]
-    [(App e1 e2) ]
+    [(App e1 e2) (append (expr-lambda-vars e1) (expr-lambda-vars e2))]
+    [(Lam x e) (cons x (expr-lambda-vars e))]
   )
 )
 
@@ -133,8 +134,14 @@
 ;; Compute a list of all free variables, i.e. variables which occur outside
 ;; of any lambda that binds them.
 (define (expr-free-vars e)
-  ;; TODO
-  '())
+  (match e
+    [(Int i) '()]
+    [(Bool b) '()]
+    [(Var v) (list v)]
+    [(App e1 e2) (append (expr-free-vars e1) (expr-free-vars e2))]
+    [(Lam x e) (remove-duplicates (remove x (expr-free-vars e)))]
+  )
+)
 
 (module+ test
   (check list-set-equal? (expr-free-vars (sexpr->expr 123)) '())
