@@ -46,8 +46,13 @@
 ;; Zip together lists into a list of lists
 ;; ASSUME: lists are the same length
 (define (zip as bs)
-  ;; TODO
-  '())
+  (match (list as bs)
+    [(list '() '()) '()]
+    [(list (cons a af) (cons b bf))
+     (list (list a b) (zip af bf))
+    ]
+  )
+)
 
 (module+ test
   (check-equal? (zip '() '()) '())

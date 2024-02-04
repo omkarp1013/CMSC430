@@ -84,8 +84,7 @@
 ;; Sort list into descending order
 ;; HINT: do insertion sort by writing and using the helper below
 (define (sort-desc xs)
-  ;; TODO
-  xs)
+)
 
 (module+ test
   (check-equal? (sort-desc '()) '())
@@ -98,9 +97,14 @@
 ;; Insert number into sorted list
 ;; ASSUME: given list is sorted in descending order
 (define (insert-desc n xs)
+  (insert_helper '() xs)
+)
+
+(define (insert_helper p1 n xs)
   (match xs
-    ['() (list n)]
-    
+    ['() (append p1 (list n))]
+    [(cons x res)
+    (if (>= n x) (append p1 (list n) xs) (insert_helper (append p1 (list x)) n res))]
   )
 )
 
