@@ -13,7 +13,7 @@
  (match xs
   ['() (first res)]
   [(cons curr xs)
-    (if (< (f curr) (last res)) (helper_minimize f xs (list curr (f curr)) (helper_minimize f xs res)))]
+    (if (< (f curr) (last res)) (helper_minimize f xs (list curr (f curr))) (helper_minimize f xs res))]
   )
 )
 
@@ -30,9 +30,31 @@
 ;; Sort list in ascending order according to given comparison
 ;; ENSURE: result is stable
 (define (sort < xs)
-  ;; TODO
-  xs)
+  (match xs
+    ['() '()]
+    [(cons n ls) (insert-desc < n (sort < ls))]
+  )
+)
 
+(define (insert-desc < n xs)
+  (insert-helper < '() n xs)
+)
+
+(define (insert-helper < p1 n xs)
+  (match xs
+    ['() (append p1 (list n))]
+    [(cons x res)
+     (if (or (and (not (< x n)) (<= (pos n xs) (pos x xs))) (< n x))
+         (append p1 (list n) (list x) res)
+         (insert-helper < (append p1 (list x)) n res))]
+  )
+)
+
+(define (pos x xs)
+  (if (member x xs)
+      (- (length xs) (length (member x xs)))
+      -1)
+)
 
 (module+ test
   (check-equal? (sort < '(1 -2 3)) '(-2 1 3))
@@ -49,7 +71,7 @@
   (match (list as bs)
     [(list '() '()) '()]
     [(list (cons a af) (cons b bf))
-     (list (list a b) (zip af bf))
+     (append (list (list a b)) (zip af bf))
     ]
   )
 )
@@ -65,8 +87,8 @@
 ;; ((pipe (list f1 f2 f3)) x) ≡ (f1 (f2 (f3 x)))
 (define (pipe fs)
   (match fs
-    ['() '()]
-    [(list fi fk)
+    ['() (lambda (x) x)]
+    [(cons fi fk)
       (lambda (x) (fi ((pipe fk) x)))]
   )
 )
