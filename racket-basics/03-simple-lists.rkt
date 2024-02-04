@@ -45,8 +45,8 @@
 ;; ASSUME: lists have equal length
 (define (zip-add ls1 ls2)
   (match (list ls1 ls2)
-    [(list '() '()) '(0)]
-    [(list (cons n1 x1) (cons n2 x2)) (list (+ n1 n2) (zip-add x1 x2))]))
+    [(list '() '()) '()]
+    [(list (cons n1 x1) (cons n2 x2)) (append (list (+ n1 n2)) (zip-add x1 x2))]))
 
 (module+ test
   (check-equal? (zip-add '() '()) '())
@@ -59,7 +59,10 @@
 (define (zip-lon ls1 ls2)
   (match (list ls1 ls2)
     [(list '() '()) '()]
-    [(cons (cons n1 x1) (cons n2 x2)) (list (list (n1 n2)) (zip-lon x1 x2))])'())
+    [(list (cons n1 x1) (cons n2 x2))
+     (append (list (list n1 n2)) (zip-lon x1 x2))]
+  )
+)
 
 (module+ test
   (check-equal? (zip-lon '() '()) '())
@@ -69,10 +72,13 @@
 ;; [Pairof Real [Listof Real]] -> Real
 ;; Compute a minimum element of non-empty list of numbers
 (define (min-lon xs)
-  (define helper xs res
+  (helper xs (first xs))
+)
+
+(define (helper xs res)
     (match xs
       ['() res]
-      [(cons n xs) (if (< n res) (helper xs n) (helper xs res))])))
+      [(cons n xs) (if (< n res) (helper xs n) (helper xs res))]))  
 
 (module+ test
   (check-equal? (min-lon '(1)) 1)
@@ -84,6 +90,10 @@
 ;; Sort list into descending order
 ;; HINT: do insertion sort by writing and using the helper below
 (define (sort-desc xs)
+  (match xs
+  ['() '()]
+  [(cons n ls) (insert-desc n (sort-desc ls))]
+  )
 )
 
 (module+ test
@@ -97,14 +107,14 @@
 ;; Insert number into sorted list
 ;; ASSUME: given list is sorted in descending order
 (define (insert-desc n xs)
-  (insert_helper '() xs)
+  (insert-helper '() n xs)
 )
 
-(define (insert_helper p1 n xs)
+(define (insert-helper p1 n xs)
   (match xs
     ['() (append p1 (list n))]
     [(cons x res)
-    (if (>= n x) (append p1 (list n) xs) (insert_helper (append p1 (list x)) n res))]
+    (if (>= n x) (append p1 (list n) (list x) res) (insert-helper (append p1 (list x)) n res))]
   )
 )
 
