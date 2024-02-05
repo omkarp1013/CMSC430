@@ -32,21 +32,21 @@
 (define (sort < xs)
   (match xs
     ['() '()]
-    [(cons n ls) (insert-desc < n (sort < ls))]
+    [(cons n ls) (insert-desc-1 < n (sort < ls))]
   )
 )
 
-(define (insert-desc < n xs)
-  (insert-helper < '() n xs)
+(define (insert-desc-1 < n xs)
+  (insert-helper-1 < '() n xs)
 )
 
-(define (insert-helper < p1 n xs)
+(define (insert-helper-1 < p1 n xs)
   (match xs
     ['() (append p1 (list n))]
     [(cons x res)
      (if (or (and (not (< x n)) (<= (pos n xs) (pos x xs))) (< n x))
          (append p1 (list n) (list x) res)
-         (insert-helper < (append p1 (list x)) n res))]
+         (insert-helper-1 < (append p1 (list x)) n res))]
   )
 )
 

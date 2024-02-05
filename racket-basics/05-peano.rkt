@@ -72,7 +72,7 @@
     [(list (Z) (Z)) (Z)]
     [(list (Z) (S rest)) (Z)]
     [(list (S rest) (Z)) (Z)]
-    [(list (S rest1) (S rest2)) (plus (S rest1) (mult rest1 rest2))]
+    [(list (S rest1) (S rest2)) (plus (S rest1) (mult n1 rest2))]
   )
 )
 
