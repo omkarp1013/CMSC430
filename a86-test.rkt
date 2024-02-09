@@ -4,5 +4,6 @@
 (asm-interp
  (prog (Global 'entry)
        (Label 'entry)
-       (Mov 'rax 42)
+       (Mov 'rax 9) ; 
+       (Or 'rax 1)
        (Ret)))
