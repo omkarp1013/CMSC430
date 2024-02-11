@@ -16,8 +16,11 @@
 ;; in the same state it started in.
 
 (define zero-lower-4-rax
-  ;; TODO
-  (seq))
+  (seq
+    (Mov 'rbx 18446744073709551600)
+    (And 'rax 'rbx)
+  )
+)
 
 
 (module+ test
