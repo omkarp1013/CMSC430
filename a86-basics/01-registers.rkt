@@ -16,8 +16,11 @@
 
 ;; Asm
 (define swap-rax-rcx
-  ;; TODO
-  (seq))
+  (seq
+    (Push 'rax)
+    (Mov 'rax 'rcx)
+    (Pop 'rcx)
+  ))
 
 (module+ test
   ;; Int64 Int64 -> Boolean

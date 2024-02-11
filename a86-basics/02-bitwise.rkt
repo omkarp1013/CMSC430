@@ -49,9 +49,16 @@
 ;; The sequence should leave the stack and all callee-saved registers
 ;; in the same state it started in.
 
-(define check-lower-4-rax
-  ;; TODO  
-  (seq))
+(define check-lower-4-rax  
+  (seq
+    (And 'rax #b1111)
+    (Cmp 'rax 5)
+    (Je 'Movecx)
+    (Mov 'rcx 0)
+    (Ret)
+    (Label 'Movecx)
+    (Mov 'rcx 1)
+  ))
 
 (module+ test
   ;; Int64 -> Boolean
