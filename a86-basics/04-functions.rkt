@@ -21,6 +21,9 @@
   ;; TODO
   (seq
    (Label 'mult3)
+   (Mov 'rcx 'rax)
+   (Add 'rax 'rax)
+   (Add 'rax 'rcx)
    (Ret)))
 
 (module+ test
