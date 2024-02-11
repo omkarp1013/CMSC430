@@ -51,13 +51,15 @@
 
 (define check-lower-4-rax  
   (seq
-    (And 'rax #b1111)
-    (Cmp 'rax 5)
+    (Mov 'rcx 'rax)
+    (And 'rcx #b1111)
+    (Cmp 'rcx 5)
     (Je 'Movecx)
     (Mov 'rcx 0)
-    (Ret)
+    (Jmp 'Done)
     (Label 'Movecx)
     (Mov 'rcx 1)
+    (Label 'Done)
   ))
 
 (module+ test
