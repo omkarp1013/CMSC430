@@ -20,8 +20,15 @@
 ;; started in.
 
 (define pop-sum-4
-  ;; TODO
-  (seq))
+  (seq
+    (Pop 'rax)
+    (Pop 'rcx)
+    (Add 'rax 'rcx)
+    (Pop 'rcx)
+    (Add 'rax 'rcx)
+    (Pop 'rcx)
+    (Add 'rax 'rcx)
+  ))
 
 (module+ test
   ;; Int64 Int64 Int64 Int64 -> Int64
@@ -57,8 +64,15 @@
 ;; in the same state it started in.
 
 (define stack-sum-4
-  ;; TODO
-  (seq))
+  (seq
+    (Mov 'rax (Offset 'rsp 0))
+    (Mov 'rcx (Offset 'rsp 8))
+    (Add 'rax 'rcx)
+    (Mov 'rcx (Offset 'rsp 16))
+    (Add 'rax 'rcx)
+    (Mov 'rcx (Offset 'rsp 24))
+    (Add 'rax 'rcx)
+  ))
 
 (module+ test
   ;; Int64 Int64 Int64 Int64 -> Boolean
@@ -112,8 +126,18 @@
 ;; started in.
 
 (define pop-sum-rax
-  ;; TODO
-  (seq))
+  (seq
+    (Mov 'rcx 'rax)
+    (Mov 'rax 0)
+    (Label 'Start)
+    (Cmp 'rcx 0)
+    (Je 'Done)
+    (Sub 'rcx 1)
+    (Pop 'rdx)
+    (Add 'rax 'rdx)
+    (Jmp 'Start)
+    (Label 'Done)
+  ))
 
 (module+ test
   ;; [Listof Int64] -> Int64
