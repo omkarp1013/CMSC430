@@ -59,9 +59,39 @@
 ;; The computation does not need to be efficient.
 
 (define fib
-  ;; TODO
   (seq
    (Label 'fib)
+   (Mov 'rcx 'rax)
+
+   (Cmp 'rcx 0)
+   (Je 'Basezero)
+
+   (Cmp 'rcx 1)
+   (Je 'Baseone)
+   (Mov 'r8 1)
+   (Mov 'rsi 0)
+   (Mov 'rdi 1)
+   (Jne 'Start)
+
+   (Label 'Basezero)
+   (Mov 'rax 0)
+   (Jmp 'Done)
+
+   (Label 'Baseone)
+   (Mov 'rax 1)
+   (Jmp 'Done)
+
+   (Label 'Start)
+   (Cmp 'rcx 'r8)
+   (Je 'Done)
+   (Add 'r8 1)
+   (Mov 'rax 0)
+   (Add 'rax 'rdi)
+   (Add 'rax 'rsi)
+   (Mov 'rsi 'rdi)
+   (Mov 'rdi 'rax)
+   (Jmp 'Start)
+   (Label 'Done)
    (Ret)))
 
 (module+ test
