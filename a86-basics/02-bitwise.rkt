@@ -17,8 +17,8 @@
 
 (define zero-lower-4-rax
   (seq
-    (Mov 'rbx 18446744073709551600)
-    (And 'rax 'rbx)
+    (Mov 'rcx 18446744073709551600)
+    (And 'rax 'rcx)
   )
 )
 
