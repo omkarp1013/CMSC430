@@ -26,8 +26,8 @@
     ['() (interp e)]
     [(cons (Clause p b) xs)
       (match (interp p)
-        [#t (interp b)
-        [#f (interp-cond-clauses b)]])]))
+        [#t (interp b)]
+        [_ (interp-cond-clauses xs e)])]))
 
 (define (interp-case-clauses v cs el)
   (match cs
