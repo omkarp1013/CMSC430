@@ -11,12 +11,12 @@
      (If (parse e1) (parse e2) (parse e3))]
     [(list 'cond cs ...) 
       (match (length cs)
-        [1 (Cond '() (parse-clauses cs))]
-        [_ (Cond (parse-clauses (all-minus-last cs)) (parse-clauses (list (last cs))))])]  
+        [1 (Cond '() (parse-case-clauses cs))]
+        [_ (Cond (parse-case-clauses (all-minus-last cs)) (parse-cond-clauses (list (last cs))))])]  
     [(list 'case exp cs ...)
       (match (length cs)
-        [1 (Case (parse exp) '() (parse-clauses cs))]
-        [_ (Case (parse exp) (parse-clauses (all-minus-last cs)) (parse-clauses (list (last cs))))])]
+        [1 (Case (parse exp) '() (parse-cond-clauses cs))]
+        [_ (Case (parse exp) (parse--cond-clauses (all-minus-last cs)) (parse-cond-clauses (list (last cs))))])]
     [_ (error "Parse error")]))
 
 ;; Any -> Boolean
@@ -32,13 +32,19 @@
             -
             not)))
 
-(define (parse-clauses cs)
+(define (parse-cond-clauses cs)
   (match (first cs)
     [(list 'else exp) (parse exp)]
     [(list e1 e2)
       (match (rest cs)
         ['() (Clause e1 e2)]
-        [(cons n xs) (list (Clause e1 e2) (parse-clauses (rest cs)))])]))
+        [(cons n xs) (list (Clause e1 e2) (parse-cond-clauses (rest cs)))])]))
     
 (define (all-minus-last lst)
   (reverse (rest (reverse lst))))
+
+(define (parse-case-clauses cs)
+  (match (first cs)
+    [(list 'else exp) (parse exp)]
+    [(list (list ? ) exp)]))
+
