@@ -24,16 +24,22 @@
 (define (interp-cond-clauses cs e)
   (match cs
     ['() (interp e)]
-    [(cons (Clause p b) xs)
+    [(Clause p b)
       (match (interp p)
-        [#t (interp b)]
-        [_ (interp-cond-clauses xs e)])]))
+        [#f (interp e)]
+        [_ (interp b)])]
+    [(list (Clause p b) xs)
+      (match (interp p)
+        [#f (interp-cond-clauses xs e)]
+        [_ (interp b)])]))
 
 (define (interp-case-clauses v cs el)
   (match cs
     ['() (interp el)]
-    [(cons (Clause p b) xs)
-      (if (member v p) (interp b) (interp-case-clauses (v xs el)))]))
+    [(Clause p b)
+      (if (member v p) (interp b) (interp el))]
+    [(list (Clause p b) xs)
+      (if (member v p) (interp b) (interp-case-clauses v xs el))]))
 
 
       

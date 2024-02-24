@@ -17,7 +17,7 @@
       (match (length cs)
         [1 (Case (parse exp) '() (parse-case-clauses cs))]
         [_ (Case (parse exp) (parse-case-clauses (all-minus-last cs)) (parse-case-clauses (list (last cs))))])]
-    [_ (error "Parse e")]))
+    [_ (error "Parse error")]))
 
 ;; Any -> Boolean
 (define (datum? x)

@@ -3,12 +3,9 @@
 (require "parse.rkt")
 (require "interp.rkt")
 
-(interp (parse '(cond [#f 1]
-      [(case (cond [(not #t) 1]
-      [1 (add1 1)]
-      [else (add1 2)])
-      
-      [(3 4) 1]
-      [(1) 2]
-      [else 3]) (add1 1)]
-      [else (add1 2)])))
+(interp (parse '(case (cond [(not #t) 1]
+      [else #f])
+
+      [(1 2 #t) 1]
+      [(3 4 #f) 2]
+      [else 3])))
