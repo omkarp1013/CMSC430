@@ -1,6 +1,7 @@
 #lang racket
 
-(define lst '(1))
+(define (parse-clauses cs)
+  (match (first cs
+    [(list test result) exp])))
 
-(match (rest lst)
-    ['() #t])
+(parse-clauses '[else 6])
