@@ -6,5 +6,7 @@
   (match op
     ['add1  (add1 v)]
     ['sub1  (sub1 v)]
-    ;; TODO: Handle abs, -, and not   
-    ['zero? (zero? v)]))
+    ['zero? (zero? v)]
+    ['abs (abs v)]
+    ['- (- v)]
+    ['not (not v)]))
