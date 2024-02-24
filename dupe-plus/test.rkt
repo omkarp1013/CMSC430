@@ -1,7 +1,6 @@
 #lang racket
 
-(define (parse-clauses cs)
-  (match (first cs
-    [(list test result) exp])))
-
-(parse-clauses '[else 6])
+(case 1
+      [(3 4) 1]
+      [(1) 2]
+      [else 3])

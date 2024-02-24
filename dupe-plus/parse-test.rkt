@@ -2,11 +2,12 @@
 (require "ast.rkt")
 (require "parse.rkt")
 
-(parse '(case (cond [(not #t) 1]
-      [1 2]
-      [else 3])
-      
-      [(3 4) 1]
-      [(1) 2]
-      [else 3]))
+(parse '(case (cond
+    [(zero? (add1 (abs (- 1)))) 1]
+    [else (not #f)])
+
+    [(1 2) (add1 0)]
+    [(3 4) (add1 1)]
+    [(#f #t) (add1 2)]
+    [else (add1 3)]))
 
