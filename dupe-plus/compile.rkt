@@ -62,7 +62,7 @@
              (Label l1)
              (compile-cond '() e)
              (Label l2)))]
-    [(cons (Clause p b) xs)
+    [(list (Clause p b) xs)
       (let ((l3 (gensym 'cond))
             (l4 (gensym 'cond)))
         (seq (compile-e p)
@@ -78,15 +78,15 @@
   (let ((end-label (gensym 'case)))
     (seq 
       (compile-e exp) ;; exp is in Rax
-      (compile-case-lst cs end-label)
+      (compile-case-lst cs e end-label)
       (Label end-label))))
 
-(define (compile-case-lst cs end-label)
+(define (compile-case-lst cs el end-label)
   (match cs
     [(cons n xs)
       (seq (compile-case-clause n end-label)
-           (compile-case-lst xs end-label))]
-    ['() (seq )]))
+           (compile-case-lst xs el end-label))]
+    ['() (seq (compile-e el))]))
 
 (define (compile-case-clause c label)
   (match c
@@ -98,7 +98,6 @@
 
 (define (compile-case-datum lst l1)
   (match lst
-    ['() (seq (Jmp l1))]
     [(cons n xs)
       (seq (Push rax)
            (compile-e n) 
@@ -106,7 +105,8 @@
            (Pop rax)
            (Cmp rax rdx)
            (Jne l1)
-           (compile-case-datum xs l1))]))
+           (compile-case-datum xs l1))]
+      ['() (seq (Jmp l1))]))
 
 
 
