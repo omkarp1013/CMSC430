@@ -19,7 +19,8 @@
   (match e
     [(Lit d)         (compile-value d)]
     [(Prim1 p e)     (compile-prim1 p e)]
-    ;; TODO: Handle cond
+    [(Cond cs e)     (compile-cond cs e)]
+    [(Case exp cs e) (compile-case exp cs e)]
     ;; TODO: Handle case
     [(If e1 e2 e3)
      (compile-if e1 e2 e3)]))
@@ -45,6 +46,35 @@
          (Label l1)
          (compile-e e3)
          (Label l2))))
+
+(define (compile-cond cs e)
+  (match cs
+    ['() (compile-e e)]
+    [(Clause p b)
+      (let ((l1 (gensym 'cond))
+            (l2 (gensym 'cond)))
+        (seq (compile-e p)
+            (Cmp rax (value->bits #f))
+            (Je l1)
+            (compile-e b)
+            (Jmp l2)
+            (Label l1)
+            (compile-cond '() e)
+            (Label l2)))]
+    [(cons (Clause p b) xs)
+      (let ((l3 (gensym 'cond))
+            (l4 (gensym 'cond)))
+        (seq (compile-e p)
+              (Cmp rax (value->bits #f))
+              (Je l3)
+              (compile-e b)
+              (Jmp l4)
+              (Label l3)
+              (compile-cond xs e)))
+              (Label l4)]))
+
+(define (compile-case exp cs e)
+  ())
 
 
 
