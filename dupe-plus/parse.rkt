@@ -11,22 +11,12 @@
      (If (parse e1) (parse e2) (parse e3))]
     [(list 'cond cs ...) 
       (match (length cs)
-        [1 
-          (match cs 
-            [(list (list 'else exp)) (Cond '() (parse-cond-clauses cs))]
-            [_ (error "Parse error")])]
-        [_ (match (last cs)
-            [(list 'else exp) (Cond (parse-cond-clauses (all-minus-last cs)) (parse-cond-clauses (list (last cs))))]
-            [_ (error "Parse error")])])]  
+        [1 (Cond '() (parse-cond-clauses cs))]
+        [_ (Cond (parse-cond-clauses (all-minus-last cs)) (parse-cond-clauses (list (last cs))))])]  
     [(list 'case exp cs ...)
       (match (length cs)
-        [0 (error "Parse error")]
-        [1 (match cs 
-            [(list 'else exp) (Case (parse exp) '() (parse-case-clauses cs))]
-            [_ (error "Parse error")])]
-        [_ (match (list (last cs))
-            [(list 'else exp) (Case (parse exp) (parse-case-clauses (all-minus-last cs)) (parse-case-clauses (list (last cs))))]
-            [_ (error "Parse error")])])]
+        [1 (Case (parse exp) '() (parse-case-clauses cs))]
+        [_ (Case (parse exp) (parse-case-clauses (all-minus-last cs)) (parse-case-clauses (list (last cs))))])]
     [_ (error "Parse error")]))
 
 ;; Any -> Boolean

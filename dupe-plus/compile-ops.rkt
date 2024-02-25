@@ -5,6 +5,7 @@
 (require a86/ast)
 
 (define rax 'rax)
+(define rdx 'rdx)
 (define r9  'r9)
 
 ;; Op1 -> Asm
@@ -15,11 +16,13 @@
     ['abs  (let ((l1 (gensym 'abs)))
             (seq (Cmp rax (value->bits 0))
                  (Jge l1)
-                 (Sub rax (value->bits rax))
-                 (Sub rax (value->bits rax))
+                 (Mov rdx rax)
+                 (Sub rax rdx)
+                 (Sub rax rdx)
                  (Label l1)))]
-    ['-    (seq (Sub rax (value->bits rax))
-                (Sub rax (value->bits rax)))]
+    ['-    (seq (Mov rdx rax)
+                (Sub rax rdx)
+                (Sub rax rdx))]
     ['not  (seq (Cmp rax (value->bits #f))
                 (Mov rax (value->bits #f))
                 (Mov r9 (value->bits #t))
