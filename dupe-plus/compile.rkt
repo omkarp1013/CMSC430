@@ -92,22 +92,24 @@
 (define (compile-case-clause c label)
   (match c
     [(Clause p b)
-      (let ((false (gensym 'clause)))
-           (seq (compile-case-datum p false)
+      (let ((false (gensym 'clause))
+           (true (gensym 'clause)))
+           (seq (compile-case-datum p true false)
+                (Label true)
                 (compile-e b)
                 (Label false)))]))
 
-(define (compile-case-datum lst l1)
+(define (compile-case-datum lst true false)
   (match lst
     [(cons n xs)
       (seq (Push rax)
-           (compile-e n) 
+           (Mov rax (value->bits n)) 
            (Mov rdx rax)
            (Pop rax)
            (Cmp rax rdx)
-           (Jne l1)
-           (compile-case-datum xs l1))]
-    ['() (seq (Jmp l1))]))
+           (Je true)
+           (compile-case-datum xs true false))]
+    ['() (seq (Jmp false))]))
 
 
 
