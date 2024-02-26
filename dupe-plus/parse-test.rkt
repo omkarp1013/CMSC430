@@ -3,12 +3,13 @@
 (require "parse.rkt")
 
 
-(define e (parse '(cond [(cond [else #f]) 1] [(not #t) #f]
-      [else #t])))
+
+(define e (parse '(case 2 [() 3] [else 1])))
 
 (match e
       ['() #f]
-      [(Cond cs e)
+      [(Case exp cs el)
             (match cs
+                  [(Clause p b) p]
                   [(cons n xs) n])])
 

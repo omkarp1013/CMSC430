@@ -21,7 +21,7 @@
     [(Lit d)         (compile-value d)]
     [(Prim1 p e)     (compile-prim1 p e)]
     [(Cond cs e)     (compile-cond cs e)]
-    [(Case exp cs e) (compile-case exp cs e)]
+    [(Case exp cs el) (compile-case exp cs el)]
     ;; TODO: Handle case
     [(If e1 e2 e3)
      (compile-if e1 e2 e3)]))
@@ -86,15 +86,16 @@
     [(cons n xs)
       (seq (compile-case-clause n end-label)
            (compile-case-lst xs el end-label))]
+    [(Clause p b) (seq (compile-case-clause cs end-label))]
     ['() (seq (compile-e el))]))
 
 (define (compile-case-clause c label)
   (match c
     [(Clause p b)
       (let ((false (gensym 'clause)))
-           (compile-case-datum p false)
-           (compile-e b)
-           (Label false))]))
+           (seq (compile-case-datum p false)
+                (compile-e b)
+                (Label false)))]))
 
 (define (compile-case-datum lst l1)
   (match lst
@@ -106,7 +107,7 @@
            (Cmp rax rdx)
            (Jne l1)
            (compile-case-datum xs l1))]
-      ['() (seq (Jmp l1))]))
+    ['() (seq (Jmp l1))]))
 
 
 
