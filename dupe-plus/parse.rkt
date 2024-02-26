@@ -37,8 +37,8 @@
     [(list 'else exp) (parse exp)]
     [(list e1 e2)
       (match (rest cs)
-        ['() (Clause (parse e1) (parse e2))]
-        [(cons n xs) (list (Clause (parse e1) (parse e2)) (parse-cond-clauses (rest cs)))])]))
+        ['() (cons (Clause (parse e1) (parse e2)) '())]
+        [(cons n xs) (cons (Clause (parse e1) (parse e2)) (parse-cond-clauses (rest cs)))])]))
     
 (define (all-minus-last lst)
   (reverse (rest (reverse lst))))
@@ -48,8 +48,8 @@
     [(list 'else exp) (parse exp)]
     [(list lst exp)
       (match (rest cs)
-        ['() (if (int-bool lst) (Clause lst (parse exp)) (error "Parse error"))]
-        [(cons n xs) (if (int-bool lst) (list (Clause lst (parse exp)) (parse-case-clauses (rest cs))) (error "Parse error"))])]))
+        ['() (if (int-bool lst) (cons (Clause lst (parse exp)) '()) (error "Parse error"))]
+        [(cons n xs) (if (int-bool lst) (cons (Clause lst (parse exp)) (parse-case-clauses (rest cs))) (error "Parse error"))])]))
 
 (define (int-bool lst)
   (match lst

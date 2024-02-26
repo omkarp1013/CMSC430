@@ -7,7 +7,6 @@
 
 (define rax 'rax)
 (define rdx 'rdx)
-(define rcx 'rcx)
 
 ;; Expr -> Asm
 (define (compile e)
@@ -51,19 +50,8 @@
 
 (define (compile-cond cs e)
   (match cs
-    ['() (compile-e e)]
-    [(Clause p b)
-      (let ((l1 (gensym 'cond))
-            (l2 (gensym 'cond)))
-        (seq (compile-e p)
-             (Cmp rax (value->bits #f))
-             (Je l1)
-             (compile-e b)
-             (Jmp l2)
-             (Label l1)
-             (compile-cond '() e)
-             (Label l2)))]
-    [(list (Clause p b) xs)
+    ['() (compile-e e)]  
+    [(cons (Clause p b) xs)
       (let ((l3 (gensym 'cond))
             (l4 (gensym 'cond)))
         (seq (compile-e p)
@@ -76,38 +64,36 @@
              (Label l4)))]))
 
 (define (compile-case exp cs el)
-  (let ((end-label (gensym 'case)))
+  (let ((end (gensym 'case)))
     (seq 
       (compile-e exp)
-      (compile-case-lst cs end-label)
+      (compile-case-lst cs end)
       (compile-e el)
-      (Label end-label))))  
+      (Label end))))  
 
-(define (compile-case-lst cs end-label)
+(define (compile-case-lst cs end)
   (match cs
     ['() (seq)]
-    [(list n xs)
-      (seq (compile-case-clause n end-label)
-           (compile-case-lst xs end-label))]
-    [(Clause p b) (seq (compile-case-clause cs end-label))]))
+    [(cons (Clause p b) xs)
+      (let ((equal (gensym 'lst))
+           (clause (gensym 'lst)))
+        (seq (compile-case-clause (Clause p b) end clause equal)
+            (Label equal)
+            (compile-e b)
+            (Jmp end)
+            (Label clause)
+            (compile-case-lst xs end)))]))
 
-(define (compile-case-clause c end-label)
+(define (compile-case-clause c end clause equal)
   (match c
     [(Clause p b)
       (match p
-        ['() (seq)]
+        ['() (seq (Jmp clause))]
         [(cons n xs)
-          (let ((false (gensym 'clause)))
-          (seq (Mov rcx rax)
-               (Mov rax (value->bits n))
-               (Mov rdx rax)
-               (Mov rax rcx)
+          (seq (Mov rdx (value->bits n))
                (Cmp rax rdx)
-               (Jne false)
-               (compile-e b)
-               (Jmp end-label)
-               (Label false)
-               (compile-case-clause (Clause xs b) end-label)))])]))
+               (Je equal)
+               (compile-case-clause (Clause xs b) end clause equal))])]))
 
 
 
