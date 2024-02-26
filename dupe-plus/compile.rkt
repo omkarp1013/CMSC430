@@ -86,7 +86,7 @@
 (define (compile-case-lst cs end-label)
   (match cs
     ['() (seq)]
-    [(cons n xs)
+    [(list n xs)
       (seq (compile-case-clause n end-label)
            (compile-case-lst xs end-label))]
     [(Clause p b) (seq (compile-case-clause cs end-label))]))
@@ -94,27 +94,20 @@
 (define (compile-case-clause c end-label)
   (match c
     [(Clause p b)
-      (let ((false (gensym 'clause))
-           (true (gensym 'clause)))
-           (seq (compile-case-datum p true false)
-                (Label true)
-                (compile-e b)
-                (Jmp end-label)
-                (Label false)))]))
-
-(define (compile-case-datum lst true false)
-  (match lst
-    ['() (seq (Jmp false))]
-    [(cons n xs)
-      (seq (Mov rcx rax)
-           (Mov rax (value->bits n)) 
-           (Mov rdx rax)
-           (Mov rax rcx)
-           (Cmp rax rdx)
-           (Je true)
-           (compile-case-datum xs true false))]))
-
-
+      (match p
+        ['() (seq)]
+        [(cons n xs)
+          (let ((false (gensym 'clause)))
+          (seq (Mov rcx rax)
+               (Mov rax (value->bits n))
+               (Mov rdx rax)
+               (Mov rax rcx)
+               (Cmp rax rdx)
+               (Jne false)
+               (compile-e b)
+               (Jmp end-label)
+               (Label false)
+               (compile-case-clause (Clause xs b) end-label)))])]))
 
 
 

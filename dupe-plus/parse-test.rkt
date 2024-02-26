@@ -1,15 +1,15 @@
 #lang racket
-(require "ast.rkt")
-(require "parse.rkt")
+(require "parse.rkt"
+         "interp.rkt"
+         "compile.rkt"
+         "types.rkt"
+         a86/interp)
 
 
 
-(define e (parse '(case 2 [() 3] [else 1])))
-
-(match e
-      ['() #f]
-      [(Case exp cs el)
-            (match cs
-                  [(Clause p b) p]
-                  [(cons n xs) n])])
+(bits->value (asm-interp (compile (parse '(case #t
+    [(1 2) (add1 0)]
+    [(3 4) (add1 1)]
+    [(#f #t) (add1 2)]
+    [else (add1 3)])))))
 
