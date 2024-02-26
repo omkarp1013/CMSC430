@@ -7,6 +7,7 @@
 
 (define rax 'rax)
 (define rdx 'rdx)
+(define rcx 'rcx)
 
 ;; Expr -> Asm
 (define (compile e)
@@ -77,18 +78,18 @@
 (define (compile-case exp cs el)
   (let ((end-label (gensym 'case)))
     (seq 
-      (compile-e exp) ;; exp is in Rax
+      (compile-e exp)
       (compile-case-lst cs end-label)
       (compile-e el)
-      (Label end-label))))
+      (Label end-label))))  
 
 (define (compile-case-lst cs end-label)
   (match cs
+    ['() (seq)]
     [(cons n xs)
       (seq (compile-case-clause n end-label)
            (compile-case-lst xs end-label))]
-    [(Clause p b) (seq (compile-case-clause cs end-label))]
-    ['() (seq )]))
+    [(Clause p b) (seq (compile-case-clause cs end-label))]))
 
 (define (compile-case-clause c end-label)
   (match c
@@ -103,15 +104,15 @@
 
 (define (compile-case-datum lst true false)
   (match lst
+    ['() (seq (Jmp false))]
     [(cons n xs)
-      (seq (Push rax)
+      (seq (Mov rcx rax)
            (Mov rax (value->bits n)) 
            (Mov rdx rax)
-           (Pop rax)
+           (Mov rax rcx)
            (Cmp rax rdx)
            (Je true)
-           (compile-case-datum xs true false))]
-    ['() (seq (Jmp false))]))
+           (compile-case-datum xs true false))]))
 
 
 
