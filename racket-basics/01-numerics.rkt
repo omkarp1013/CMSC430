@@ -38,3 +38,4 @@
   (check-equal? (fib 5) 5)
   (check-equal? (fib 6) 8)
   (check-equal? (fib 20) 6765))
+  
