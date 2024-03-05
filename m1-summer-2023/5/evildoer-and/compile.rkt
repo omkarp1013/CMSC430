@@ -33,8 +33,20 @@
 
 ;; [Listof Expr] -> Asm
 (define (compile-and es)
-  ;; TODO
-  (seq))
+  (match es
+    ['() (seq (Mov rax (value->bits #t)))]
+    [(cons n '()) (seq (compile-e n))]
+    [(cons n xs)
+      (let ((n-false (gensym 'and))
+           (n-true (gensym 'and)))
+           (seq (compile-e n)
+                (Cmp rax (value->bits #f))
+                (Je n-false)
+                (compile-and xs)
+                (Jmp n-true)
+                (Label n-false)
+                (Mov rax (value->bits #f))
+                (Label n-true)))]))
 
 ;; Value -> Asm
 (define (compile-value v)

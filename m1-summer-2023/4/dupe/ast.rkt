@@ -6,7 +6,7 @@
 ;; | (Bool Boolean)
 ;; | (Prim1 Op Expr)
 ;; | (If Expr Expr Expr)
-;; type Op = 'add1 | 'sub1 | 'zero?
+;; type Op = 'add1 | 'sub1 | 'zero? | 'odd?
 (struct Int (i)       #:prefab)
 (struct Bool (b)      #:prefab)
 (struct Prim1 (p e)   #:prefab)
