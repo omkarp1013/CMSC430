@@ -15,5 +15,14 @@
           (Mov rax (value->bits #f))
           (Mov r9  (value->bits #t))
           (Cmove rax r9))]
-    ['odd?
-      (seq ())]))
+    ['odd? ;; compares last bit to 1, if yes then true, otherwise false
+      (let (odd-true (gensym 'odd?))
+           (odd-false (gensym 'odd?))
+        (seq (And rax (value->bits 1))
+             (Cmp rax (value->bits 0))
+             (Je odd-true)
+             (Mov rax (value->bits #f))
+             (Jmp odd-false)
+             (Label odd-true)
+             (Mov rax (value->bits #t))
+             (Label odd-false)))]))
