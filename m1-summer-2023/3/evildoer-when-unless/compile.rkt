@@ -47,13 +47,30 @@
 
 ;; Expr Expr -> Asm
 (define (compile-when e1 e2)
-  ;; TODO
-  (seq))
+  (let ((e1-false (gensym 'when))
+        (e2-true) (gensym 'true))
+    (seq (compile-e e1)
+        (Cmp rax (value->bits #f)
+        (Je e1-false)
+        (compile-e #t)
+        (Jmp e1-true)
+        (Label e1-false)
+        (Mov rax (value->bits void))
+        (Label e1-true)
+        ))))
 
 ;; Expr Expr -> Asm
 (define (compile-unless e1 e2)
-  ;; TODO
-  (seq))
+  (let (e1-false (gensym 'unless))
+       (e1-true (gensym 'unless))
+    (seq (compile-e e1)
+         (Cmp rax (value->bits #f)
+         (Jne e1-true)
+         (compile-e e2)
+         (Jmp e1-false)
+         (Label e1-true)
+         (Mov rax (value->bits void)
+         (Label e1-false))))))
 
 ;; Expr Expr Expr -> Asm
 (define (compile-if e1 e2 e3)

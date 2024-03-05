@@ -4,6 +4,9 @@
 
 (define is
   (seq
+    (Sar 'rax 1)
+    (Sar 'rbx 1)
+    (Sub 'rax 'rbx)
     ;; Assume encoding of n1 in rax
     ;; and encoding of n2 in rbx
 
