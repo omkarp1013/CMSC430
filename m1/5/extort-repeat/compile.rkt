@@ -4,6 +4,7 @@
 
 ;; Registers used
 (define rax 'rax) ; return
+(define rcx 'rcx)
 (define rsp 'rsp) ; stack
 
 ;; Expr -> Asm
@@ -30,9 +31,7 @@
     [(Prim1 p e)        (compile-prim1 p e)]
     [(If e1 e2 e3)      (compile-if e1 e2 e3)]
     [(Begin e1 e2)      (compile-begin e1 e2)]
-    [(Repeat e1 e2)     (compile-repeat e1 e2)]
-
-    ))
+    [(Repeat e1 e2)     (compile-repeat e1 e2)]))
 
 ;; Value -> Asm
 (define (compile-value v)
@@ -67,5 +66,14 @@
 
 ;; Expr Expr -> Asm
 (define (compile-repeat e1 e2)
-  ;; TODO
-  (seq))
+  (let ((start (gensym 'if))
+       (finish (gensym 'if)))
+    (seq (assert-integer e1)
+         (Mov rcx e1)
+         (Cmp rcx 0)
+         (Jle 'err)
+         (Label start)
+         (compile-e e2)
+         (Sub rcx 1)
+         (Cmp rcx 0))
+         (Jne start)))
