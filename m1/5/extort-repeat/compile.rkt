@@ -71,6 +71,7 @@
          (assert-integer rax)
          (Cmp rax (value->bits 0))
          (Jle 'err)
+         (Mov rcx rax)
          (Label start)
          (Push rcx)
          (Sub rsp 8)
