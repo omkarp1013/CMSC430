@@ -60,6 +60,6 @@
                                        (Let 'y (Lit 6) (Var 'y))))
                 1)
   (check-equal? (max-env-length (Prim2 '+
-                                      (Let 'x (Let 'z (Lit 100) (Let 'y (Var 'z) (Var 'y))) (Let 'y (Var 'x) (Var 'y))) (Lit 0))) 3)
+                                      (Let 'x (Let 'z (Lit 100) (Let 'y (Var 'z) (Let 'k (Var 'y) (Var 'k)))) (Let 'y (Var 'x) (Var 'y))) (Lit 0))) 4)
   (check-equal? (max-env-length (Prim2 '+
                                     (Let 'x (Let 'z (Lit 100) (Var 'z)) (Let 'y (Var 'x) (Var 'y))) (Lit 0))) 2))
