@@ -62,4 +62,10 @@
   (check-equal? (max-env-length (Prim2 '+
                                       (Let 'x (Let 'z (Lit 100) (Let 'y (Var 'z) (Let 'k (Var 'y) (Var 'k)))) (Let 'y (Var 'x) (Var 'y))) (Lit 0))) 4)
   (check-equal? (max-env-length (Prim2 '+
-                                    (Let 'x (Let 'z (Lit 100) (Var 'z)) (Let 'y (Var 'x) (Var 'y))) (Lit 0))) 2))
+                                    (Let 'x (Let 'z (Lit 100) (Var 'z)) (Let 'y (Var 'x) (Var 'y))) (Lit 0))) 2)
+  (check-equal? (max-env-length (Let 'x (Lit 100) (Let 'y (Let 'z (Lit 100) (Var 'z)) (Var 'y)))) 3)
+  (check-equal? (max-env-length (Eof)) 0)
+  (check-equal? (max-env-length (Prim0 'read-byte)) 0)
+  (check-equal? (max-env-length (Prim1 'add1 (Let 'x (Lit 100) (Var 'x)))) 1)
+  (check-equal? (max-env-length (Begin (Let 'x (Lit 100) (Var 'x)) (Lit 100))) 1)
+  (check-equal? (max-env-length (Var 'x)) 0))
