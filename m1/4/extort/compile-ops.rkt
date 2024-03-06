@@ -47,7 +47,10 @@
     ['write-byte
      (seq assert-byte
           (Mov rdi rax)
-          (Call 'write_byte))]))
+          (Call 'write_byte))]
+    ['void?
+      (seq (Cmp rax (value->bits void))
+           if-equal)]))
 
 
 ;; -> Asm
