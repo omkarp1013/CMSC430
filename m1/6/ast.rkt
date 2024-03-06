@@ -44,7 +44,7 @@
     [(Lit d) 0]
     [(Prim0 p) 0]
     [(Prim1 p e) (max-env-length e)]
-    [(Prim2 p e1 e2) (+ (max-env-length e1) (max-env-length e2))]
+    [(Prim2 p e1 e2) (max (max-env-length e1) (max-env-length e2))]
     [(Begin e1 e2) (max (max-env-length e1) (max-env-length e2))]
     [(If e1 e2 e3) (max (max-env-length e1) (max-env-length e2) (max-env-length e3))]
     [(Let x e1 e2) (+ 1 (max (max-env-length e1) (max-env-length e2)))]
@@ -58,4 +58,8 @@
   (check-equal? (max-env-length (Prim2 '+
                                        (Let 'x (Lit 5) (Var 'x))
                                        (Let 'y (Lit 6) (Var 'y))))
-                1))
+                1)
+  (check-equal? (max-env-length (Prim2 '+
+                                      (Let 'x (Let 'z (Lit 100) (Let 'y (Var 'z) (Var 'y))) (Let 'y (Var 'x) (Var 'y))) (Lit 0))) 3)
+  (check-equal? (max-env-length (Prim2 '+
+                                    (Let 'x (Let 'z (Lit 100) (Var 'z)) (Let 'y (Var 'x) (Var 'y))) (Lit 0))) 2))
