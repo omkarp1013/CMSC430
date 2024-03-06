@@ -1,2 +1,3 @@
 #lang racket
-0
+
+("" begin (+ 1 (read_byte)))
