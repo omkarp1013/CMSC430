@@ -38,7 +38,17 @@
 ;; that will be used when interpreting this expression.
 ;; ASSUME: the expression is closed (has no free variables)
 
-(define (max-env-length e) 0)
+(define (max-env-length e)
+  (match e)
+    [(Lit d) 0]
+    [(Prim0 p) 0]
+    [(Prim1 p e) (max-env-length e)]
+    [(Prim2 p e1 e2) (+ (max-env-length e1) ((max-env-length e2)))]
+    [(Begin e1 e2) (max (max-env-length e1) (max-env-length e2))]
+    [If (e1 e2 e3)]
+    [(Let x e1 e2) (+ 1 (max-env-length ))]
+    [(Var x) 0])
+
 
 (module+ test
   (require rackunit)
