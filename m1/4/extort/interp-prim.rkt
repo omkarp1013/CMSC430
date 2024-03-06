@@ -19,6 +19,7 @@
     [(list 'char->integer (? char?))      (char->integer v)]
     [(list 'write-byte    (? byte?))      (write-byte v)]
     [(list 'eof-object? v)                (eof-object? v)]
+    [(list 'void? v) (void? v)]
     [_ 'err]))
 
 ;; Any -> Boolean

@@ -12,7 +12,7 @@
 ;; type Op1 = 'add1 | 'sub1
 ;;          | 'zero?
 ;;          | 'char? | 'integer->char | 'char->integer
-;;          | 'write-byte | 'eof-object?
+;;          | 'write-byte | 'eof-object? | void?
 
 (struct Eof () #:prefab)
 (struct Lit (d) #:prefab)

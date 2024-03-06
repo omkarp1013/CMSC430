@@ -27,5 +27,5 @@
 
 (define (op1? x)
   (memq x '(add1 sub1 zero? char? integer->char char->integer
-                 write-byte eof-object?)))
+                 write-byte eof-object? void?)))
 
