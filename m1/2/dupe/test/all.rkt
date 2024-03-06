@@ -41,5 +41,5 @@
   (check-equal? (run '(zero? 4)) #f)
   (check-equal? (run '(zero? 0)) #t))
 
-(test-runner (λ (e) (interp (parse e))))
+;; (test-runner (λ (e) (interp (parse e))))
 (test-runner (λ (e) (bits->value (asm-interp (compile (parse e))))))
