@@ -61,6 +61,8 @@
   (check-equal? (run '(void)) (void))
   (check-equal? (run '(begin 1 2)) 2)
   (check-equal? (run '(eof-object? (void))) #f)
+  (check-equal? (run '(void? (void))) #t)
+  (check-equal? (run '(void? 1)) #f)
 
   ;; Extort examples
   (check-equal? (run '(add1 #f)) 'err)

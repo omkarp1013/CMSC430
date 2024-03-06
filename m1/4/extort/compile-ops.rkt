@@ -49,7 +49,7 @@
           (Mov rdi rax)
           (Call 'write_byte))]
     ['void?
-      (seq (Cmp rax (value->bits void))
+      (seq (Cmp rax (value->bits (void)))
            if-equal)]))
 
 
