@@ -1,6 +1,6 @@
 # Pros
 
-Pros of the new encoded are as follows: 1): `#f` and `#t` are more intuitively encoded, as 0 and 1 represent True and False in propositional logic. 2): to add or subtract 1, we don't need to invoke `value->bits` and can add or subtract 1 in *most* cases (this is also a con, as explained below). 3): negative integers are represented by themselves; there is nothing special done to represent them.
+Pros of the new encoded are as follows: 1): `#f` and `#t` are more intuitively encoded, as 0 and 1 represent True and False in propositional logic. 2): to add or subtract 1, we don't need to invoke `value->bits` and can add or subtract 1 in *most* cases (this is also a con, as explained below). 3): negative integers are represented by themselves; there is nothing special done to represent them. 4): You can store a wider range of integers, as this encoding allows us to use 64-bits (as opposed to the encoding provided in class, which uses 63-bits).
 
 # Cons
 
