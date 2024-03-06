@@ -1,4 +1,4 @@
-#lang racket
+ #lang racket
 (provide Lit Prim0 Prim1 Prim2 If Eof Begin Let
          Var)
 ;;
@@ -39,15 +39,16 @@
 ;; ASSUME: the expression is closed (has no free variables)
 
 (define (max-env-length e)
-  (match e)
+  (match e
+    [(Eof) 0]
     [(Lit d) 0]
     [(Prim0 p) 0]
     [(Prim1 p e) (max-env-length e)]
-    [(Prim2 p e1 e2) (+ (max-env-length e1) ((max-env-length e2)))]
+    [(Prim2 p e1 e2) (+ (max-env-length e1) (max-env-length e2))]
     [(Begin e1 e2) (max (max-env-length e1) (max-env-length e2))]
-    [If (e1 e2 e3)]
-    [(Let x e1 e2) (+ 1 (max-env-length ))]
-    [(Var x) 0])
+    [(If e1 e2 e3) (max (max-env-length e1) (max-env-length e2) (max-env-length e3))]
+    [(Let x e1 e2) (+ 1 (max (max-env-length e1) (max-env-length e2)))]
+    [(Var x) 0]))
 
 
 (module+ test
@@ -57,4 +58,4 @@
   (check-equal? (max-env-length (Prim2 '+
                                        (Let 'x (Lit 5) (Var 'x))
                                        (Let 'y (Lit 6) (Var 'y))))
-                2))
+                1))
