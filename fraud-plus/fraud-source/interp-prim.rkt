@@ -19,7 +19,11 @@
     [(list 'char->integer (? char?))      (char->integer v)]
     [(list 'write-byte    (? byte?))      (write-byte v)]
     [(list 'eof-object? v)                (eof-object? v)]
-    ;; TODO: handle -, abs, integer?, etc.
+    [(list 'integer? v)                   (integer? v)]
+    [(list 'boolean? v)                   (boolean? v)]
+    [(list '- v)                          (- v)]
+    [(list 'abs v)                        (abs v)]
+    ;; TODO: handle -, abs, integer?, etc. DONE
     [_ 'err]))
 
 ;; Op2 Value Value -> Answer
@@ -36,11 +40,19 @@
 ;; HINT: You could use a function like the following and call it from interp.
 
 ;; OpN [Listof Value] -> Answer
-(define (interp-primN op vs)
-  (match op
-    ['+
-     ;; TODO: implement n-ary +
-     'err]))
+(define (interp-primN op vs res)
+  (match (cons (op (check-int-list vs)))
+    [(cons '+ #t) 
+      (match vs
+        ['() res]
+        [(cons n xs) (interp-primN op xs (+ n res))])]
+     ;; TODO: implement n-ary +. DONE?
+    [_ 'err]))
+
+(define (check-int-list lst)
+  (match lst
+    [(cons n xs) (if (integer? n) (check-int-list xs) #f)]
+    ['() #t]))
 
 ;; Any -> Boolean
 (define (codepoint? v)

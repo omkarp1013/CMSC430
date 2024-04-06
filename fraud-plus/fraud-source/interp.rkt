@@ -37,7 +37,7 @@
              ['err 'err]
              [v2 (interp-prim2 p v1 v2)])])]
     ;; TODO: implement n-ary primitive
-    [(PrimN p es) 'err]
+    [(PrimN p es) (interp-primN p es)]
     [(If e0 e1 e2)
      (match (interp-env e0 r)
        ['err 'err]
@@ -61,6 +61,7 @@
        [v (interp-env e2 (ext r x v))])]
     ;; TODO: implement let*
     [(Let* xs es e) 'err]))
+
 
 
 ;; HINT: this is a function that may come in handy.
