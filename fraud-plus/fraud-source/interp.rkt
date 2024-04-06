@@ -54,29 +54,45 @@
     ;; TODO: implement case. DONE
     [(Case ev cs el) (interp-case ev cs el)]
     ;; TODO: this works for just a single binding
-    ;; but you need to make it work in general
-    [(Let )
-     ()
-     (match (interp-env e1 r)
-       ['err 'err]
-       [v (interp-env e2 (ext r x v))])]
-    ;; TODO: implement let*
-    [(Let* xs es e) 'err]))
+    ;; but you need to make it work in general. DONE
+    [(Let cs es e) (interp-let cs es e r)]
+    ;; TODO: implement let*. DONE
+    [(Let* xs es e) (interp-let* cs es e r)]))
+
+(define (interp-let* cs es e r)
+  (match (interp*-env-let es r)
+    ['err 'err]
+    [es-lst (interp-let*-clauses cs es-lst e r)]))
+
+(define (interp-let*-clauses cs es-lst e r)
+  (match (length cs)
+    [0 (interp-env e r)]
+    [_ (interp-let*-clauses (cdr cs) (cdr es-lst) e (ext-let* r (car cs) (car es-lst)))]))
+
+(define (interp-let cs es e r)
+    (match (interp*-env-let es r)
+        ['err 'err]
+        [es-lst (interp-let-clauses cs es-lst e r)]))
+
+(define (interp-let-clauses cs es-lst e r)
+  (match (length cs)
+    [0 (interp-env e r)]
+    [_ (interp-let-clauses (cdr cs) (cdr es-lst) e (ext r (car cs) (car es-lst)))]))
 
 (define (interp-cond cs e r)
   (match cs
     ['() (interp-env e r)]
     [(cons (Clause p b) xs)
-      (if (interp*-clause cs r) (interp-cond-clauses cs e r) 'err)]))
+      (if (interp*-cond-clauses cs r) (interp-cond-clauses cs e r) 'err)]))
 
-(define (interp*-clause cs r)
+(define (interp*-cond-clauses cs r)
   (match cs
     ['() #t]
     [(cons (Clause p b) xs)
       (match (cons (interp-env p r) (interp-env b r))
         [(cons 'err _) #f]
         [(cons _ 'err) #f]
-        [_ (interp*-clause xs r)])]))
+        [_ (interp*-cond-clauses xs r)])]))
 
 (define (interp-cond-clauses cs e r)
   (match cs
@@ -106,16 +122,20 @@
 ;; and evaluates each expression in order.  If any
 ;; expression produces 'err, the whole thing produces
 ;; 'err; otherwise it produces a list of values.
+;; I modify the function so that it produces 'err if
+;; a Var is ever an expression, as this is not permitted
+;; in the generalized form of let.
 
 ;; type Answer* = 'err | [Listof Value]
 ;; [Listof Expr] Env -> Answer*
-(define (interp*-env es r)
+(define (interp*-env-let es r)
   (match es
     ['() '()]
+    [(cons (Var x) es) 'err]
     [(cons e es)
      (match (interp-env e r)
        ['err 'err]
-       [v (match (interp*-env es r)
+       [v (match (interp*-env-let es r)
             ['err 'err]
             [vs (cons v vs)])])]))
 
@@ -127,8 +147,12 @@
          val
          (lookup r x))]))
 
-
 ;; Env Id Value -> Env
 (define (ext r x v)
   (cons (list x v) r))
+
+(define (ext-let* r x v)
+  (match v 
+    [(Var x) (cons (list x (lookup v)) r)]
+    [_ (cons (list x v) r)]))
 
