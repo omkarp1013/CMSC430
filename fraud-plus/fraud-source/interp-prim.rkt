@@ -1,4 +1,5 @@
 #lang racket
+(require "ast.rkt")
 (provide interp-prim0 interp-prim1 interp-prim2 interp-primN)
 
 ;; Op0 -> Answer
@@ -32,26 +33,27 @@
     [(list '- (? integer?) (? integer?)) (- v1 v2)]
     [(list '< (? integer?) (? integer?)) (< v1 v2)]
     [(list '= (? integer?) (? integer?)) (= v1 v2)]
-    ;; TODO: Make + take any number of arguments, see hint below. DONE
-    ;; Once that works, you can remove this code: 
+    ;; TODO: Make + take any number of arguments, see hint below.
+    ;; Once that works, you can remove this code:    
     [_ 'err]))
 
 ;; HINT: You could use a function like the following and call it from interp.
 
 ;; OpN [Listof Value] -> Answer
-(define (interp-primN op vs res)
-  (match (cons (op (check-int-list vs)))
-    [(cons '+ #t) 
+(define (interp-primN op vs res r)
+  (match op
+    ['+
       (match vs
         ['() res]
-        [(cons n xs) (interp-primN op xs (+ n res))])]
-     ;; TODO: implement n-ary +. DONE
+        [(cons n xs) (+ (interp-primN-exp n r) (interp-primN op xs 0 r))])]
+     ;; TODO: implement n-ary +
     [_ 'err]))
 
-(define (check-int-list lst)
-  (match lst
-    [(cons n xs) (if (integer? n) (check-int-list xs) #f)]
-    ['() #t]))
+(define (interp-primN-exp e r)
+  (match e
+    [(PrimN '+ vs) (interp-primN '+ vs 0 r)]
+    [(Var x) (lookup r x)]
+    [(Lit d) d]))
 
 ;; Any -> Boolean
 (define (codepoint? v)
@@ -59,3 +61,9 @@
        (or (<= 0 v 55295)
            (<= 57344 v 1114111))))
 
+(define (lookup r x)
+  (match r
+    [(cons (list y val) r)
+     (if (symbol=? x y)
+         val
+         (lookup r x))]))

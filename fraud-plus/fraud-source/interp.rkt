@@ -37,7 +37,7 @@
              ['err 'err]
              [v2 (interp-prim2 p v1 v2)])])]
     ;; TODO: implement n-ary primitive. DONE
-    [(PrimN p es) (interp-primN p es 0)]
+    [(PrimN p es) (interp-primN p es 0 r)]
     [(If e0 e1 e2)
      (match (interp-env e0 r)
        ['err 'err]
@@ -52,22 +52,19 @@
     ;; TODO: implement cond. DONE
     [(Cond cs e) (interp-cond cs e r)]
     ;; TODO: implement case. DONE
-    [(Case ev cs el) (interp-case ev cs el)]
+    [(Case ev cs el) (interp-case ev cs el r)]
     ;; TODO: this works for just a single binding
     ;; but you need to make it work in general. DONE
     [(Let cs es e) (interp-let cs es e r)]
     ;; TODO: implement let*. DONE
-    [(Let* xs es e) (interp-let* cs es e r)]))
+    [(Let* xs es e) (interp-let* xs es e r)]))
 
-(define (interp-let* cs es e r)
-  (match (interp*-env-let es r)
-    ['err 'err]
-    [es-lst (interp-let*-clauses cs es-lst e r)]))
-
-(define (interp-let*-clauses cs es-lst e r)
+(define (interp-let* cs es-lst e r)
   (match (length cs)
     [0 (interp-env e r)]
-    [_ (interp-let*-clauses (cdr cs) (cdr es-lst) e (ext-let* r (car cs) (car es-lst)))]))
+    [_ (match (interp-env (car es-lst) r)
+        ['err 'err]
+        [exp (interp-let* (cdr cs) (cdr es-lst) e (ext r (car cs) exp))])]))
 
 (define (interp-let cs es e r)
     (match (interp*-env-let es r)
@@ -78,6 +75,22 @@
   (match (length cs)
     [0 (interp-env e r)]
     [_ (interp-let-clauses (cdr cs) (cdr es-lst) e (ext r (car cs) (car es-lst)))]))
+
+
+(define (interp-case ev cs el r)
+  (match cs
+    ['() (interp-env el r)]
+    [(cons (Clause p b) xs)
+      (match (interp-env ev r)
+        ['err 'err]
+        [_ (interp-case-clauses (interp-env ev r) cs el r)])]))
+
+(define (interp-case-clauses v cs el r)
+  (match cs
+    ['() (interp-env el r)]
+    [(cons (Clause p b) xs)
+      (if (member v p) (interp b) (interp-case-clauses v xs el r))]))
+
 
 (define (interp-cond cs e r)
   (match cs
@@ -101,21 +114,6 @@
       (match (interp-env p r)
         [#f (interp-cond-clauses xs e r)]
         [_ (interp-env b r)])]))
-
-
-(define (interp-case ev cs el r)
-  (match cs
-    ['() (interp-env el r)]
-    [(cons (Clause p b) xs)
-      (match (interp-env ev r)
-        ['err 'err]
-        [_ (interp-case-clauses (interp-env ev r) cs el r)])]))
-
-(define (interp-case-clauses v cs el r)
-  (match cs
-    ['() (interp-env el r)]
-    [(cons (Clause p b) xs)
-      (if (member v p) (interp b) (interp-case-clauses v xs el r))]))
 
 ;; HINT: this is a function that may come in handy.
 ;; It takes a list of expressions and environment
@@ -151,8 +149,4 @@
 (define (ext r x v)
   (cons (list x v) r))
 
-(define (ext-let* r x v)
-  (match v 
-    [(Var x) (cons (list x (lookup v)) r)]
-    [_ (cons (list x v) r)]))
 
