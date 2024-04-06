@@ -32,9 +32,8 @@
     [(list '- (? integer?) (? integer?)) (- v1 v2)]
     [(list '< (? integer?) (? integer?)) (< v1 v2)]
     [(list '= (? integer?) (? integer?)) (= v1 v2)]
-    ;; TODO: Make + take any number of arguments, see hint below.
-    ;; Once that works, you can remove this code:    
-    [(list '+ (? integer?) (? integer?)) (+ v1 v2)]
+    ;; TODO: Make + take any number of arguments, see hint below. DONE
+    ;; Once that works, you can remove this code: 
     [_ 'err]))
 
 ;; HINT: You could use a function like the following and call it from interp.
@@ -46,7 +45,7 @@
       (match vs
         ['() res]
         [(cons n xs) (interp-primN op xs (+ n res))])]
-     ;; TODO: implement n-ary +. DONE?
+     ;; TODO: implement n-ary +. DONE
     [_ 'err]))
 
 (define (check-int-list lst)

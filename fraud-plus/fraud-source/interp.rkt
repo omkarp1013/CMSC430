@@ -36,8 +36,8 @@
        [v1 (match (interp-env e2 r)
              ['err 'err]
              [v2 (interp-prim2 p v1 v2)])])]
-    ;; TODO: implement n-ary primitive
-    [(PrimN p es) (interp-primN p es)]
+    ;; TODO: implement n-ary primitive. DONE
+    [(PrimN p es) (interp-primN p es 0)]
     [(If e0 e1 e2)
      (match (interp-env e0 r)
        ['err 'err]
@@ -49,20 +49,57 @@
      (match (interp-env e1 r)
        ['err 'err]
        [v    (interp-env e2 r)])]
-    ;; TODO: implement cond
-    [(Cond cs e) 'err]
-    ;; TODO: implement case
-    [(Case ev cs el) 'err]
+    ;; TODO: implement cond. DONE
+    [(Cond cs e) (interp-cond cs e r)]
+    ;; TODO: implement case. DONE
+    [(Case ev cs el) (interp-case ev cs el)]
     ;; TODO: this works for just a single binding
     ;; but you need to make it work in general
-    [(Let (list x) (list e1) e2)
+    [(Let )
+     ()
      (match (interp-env e1 r)
        ['err 'err]
        [v (interp-env e2 (ext r x v))])]
     ;; TODO: implement let*
     [(Let* xs es e) 'err]))
 
+(define (interp-cond cs e r)
+  (match cs
+    ['() (interp-env e r)]
+    [(cons (Clause p b) xs)
+      (if (interp*-clause cs r) (interp-cond-clauses cs e r) 'err)]))
 
+(define (interp*-clause cs r)
+  (match cs
+    ['() #t]
+    [(cons (Clause p b) xs)
+      (match (cons (interp-env p r) (interp-env b r))
+        [(cons 'err _) #f]
+        [(cons _ 'err) #f]
+        [_ (interp*-clause xs r)])]))
+
+(define (interp-cond-clauses cs e r)
+  (match cs
+    ['() (interp e)]
+    [(cons (Clause p b) xs)
+      (match (interp-env p r)
+        [#f (interp-cond-clauses xs e r)]
+        [_ (interp-env b r)])]))
+
+
+(define (interp-case ev cs el r)
+  (match cs
+    ['() (interp-env el r)]
+    [(cons (Clause p b) xs)
+      (match (interp-env ev r)
+        ['err 'err]
+        [_ (interp-case-clauses (interp-env ev r) cs el r)])]))
+
+(define (interp-case-clauses v cs el r)
+  (match cs
+    ['() (interp-env el r)]
+    [(cons (Clause p b) xs)
+      (if (member v p) (interp b) (interp-case-clauses v xs el r))]))
 
 ;; HINT: this is a function that may come in handy.
 ;; It takes a list of expressions and environment
