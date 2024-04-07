@@ -69,7 +69,6 @@
         (compile-let* (cdr cs) (cdr es) e (cons n c))
         (Add rsp 8))]))
 
-  
 ;; [ListOfId] [Listof Expr] Expr CEnv -> Asm
 (define (compile-let cs es e c)
   (match cs
@@ -91,7 +90,7 @@
                 (seq
                   (compile-e n c)
                   (Push rax)
-                  (compile-primN '+ xs (cons #t c))
+                  (compile-primN '+ xs (cons #f c))
                   (compile-op2 p))])]
     [_ (Jmp 'err)]))
 
