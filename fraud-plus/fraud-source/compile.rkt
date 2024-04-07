@@ -91,7 +91,6 @@
                   (compile-e n c)
                   (Push rax)
                   (compile-primN '+ xs (cons #f c))
-                  (compile-op2 p)
                   (Pop rdx)
                   (assert-integer rdx)
                   (assert-integer rax)
