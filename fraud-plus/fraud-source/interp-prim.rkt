@@ -22,8 +22,9 @@
     [(list 'eof-object? v)                (eof-object? v)]
     [(list 'integer? v)                   (integer? v)]
     [(list 'boolean? v)                   (boolean? v)]
-    [(list '- v)                          (- v)]
-    [(list 'abs v)                        (abs v)]
+    [(list '- (? integer?))               (- v)]
+    [(list 'abs (? integer?))             (abs v)]
+    [(list 'not v)                        (not v)]
     ;; TODO: handle -, abs, integer?, etc. DONE
     [_ 'err]))
 
@@ -45,15 +46,20 @@
     ['+
       (match vs
         ['() res]
-        [(cons n xs) (+ (interp-primN-exp n r) (interp-primN op xs 0 r))])]
-     ;; TODO: implement n-ary +
+        [(cons n xs) 
+          (match (interp-primN-exp n r)
+            ['err 'err]
+            [k (match (interp-primN op xs 0 r)
+                ['err 'err]
+                [y (+ k y)])])])]
+     ;; TODO: implement n-ary +. DONE
     [_ 'err]))
 
 (define (interp-primN-exp e r)
   (match e
     [(PrimN '+ vs) (interp-primN '+ vs 0 r)]
-    [(Var x) (lookup r x)]
-    [(Lit d) d]))
+    [(Var x) (if (number? (lookup r x)) (lookup r x) 'err)]
+    [(Lit d) (if (number? d) d 'err)]))
 
 ;; Any -> Boolean
 (define (codepoint? v)
