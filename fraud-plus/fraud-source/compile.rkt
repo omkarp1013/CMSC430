@@ -95,7 +95,7 @@
                   (Pop rdx)
                   (assert-integer rdx)
                   (assert-integer rax)
-                  (Add rax r8))])]
+                  (Add rax rdx))])]
     [_ (Jmp 'err)]))
 
 ;; Expr [Listof CaseClause] Expr CEnv -> Asm
