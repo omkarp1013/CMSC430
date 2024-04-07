@@ -5,6 +5,7 @@
 (require a86/ast)
 
 (define rax 'rax)
+(define rdx 'rdx)
 (define rdi 'rdi) ; arg
 (define r8  'r8)  ; scratch in op2
 (define r9  'r9)  ; scratch
@@ -54,12 +55,44 @@
           (Mov rdi rax)
           (Call 'write_byte)
           unpad-stack)]
-    ;; TODO: implement -, abs, integer?, boolean?, etc.
-    ['-        (seq)]
-    ['abs      (seq)]
-    ['not      (seq)]
-    ['integer? (seq)]
-    ['boolean? (seq)]))
+    ;; TODO: implement -, abs, integer?, boolean?, etc. DONE
+    ['-        
+      (seq
+          (assert-integer rax) 
+          (Mov rdx rax)
+          (Sub rax rdx)
+          (Sub rax rdx))]
+    ['abs       
+      (let ((l1 (gensym 'abs)))
+            (seq
+                (assert-integer rax) 
+                (Cmp rax (value->bits 0))
+                (Jge l1)
+                (Mov rdx rax)
+                (Sub rax rdx)
+                (Sub rax rdx)
+                (Label l1)))]
+    ['not      
+      (seq 
+        (Cmp rax (value->bits #f))
+        (Mov rax (value->bits #f))
+        (Mov r9 (value->bits #t))
+        (Cmove rax r9))]
+    ['integer? 
+      (seq
+        (And rax mask-int)
+        (Cmp rax type-int))]
+    ['boolean? 
+      (let ((l1 (gensym 'bool))
+           (l2 (gensym 'bool)))
+        (seq
+          (Cmp rax (value->bits #f))
+          (Je l1)
+          (Cmp rax (value->bits #t))
+          (Jne 'l2)
+          (Label l1)
+          (Mov rax (value->bits #t))
+          (Label l2)))]))
 
 ;; Op2 -> Asm
 (define (compile-op2 p)

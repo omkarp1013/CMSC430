@@ -6,6 +6,7 @@
 (require a86/ast)
 
 (define rax 'rax)
+(define rdx 'rdx)
 (define rsp 'rsp) ; stack
 (define r15 'r15) ; stack pad (non-volatile)
 
@@ -50,9 +51,70 @@
      (compile-let1 x e1 e2 c)]
     ;; TODO: implement let*, case, cond
     [(Let* xs es e)  (seq)]
-    [(Case ev cs el) (seq)]
-    [(Cond cs el)    (seq)]))
+    [(Case ev cs el) (compile-case ev cs el c)]
+    [(Cond cs el)    (compile-cond cs el c)]))
     
+
+;; Expr [Listof CaseClause] Expr CEnv -> Asm
+(define (compile-case ev cs el c)
+  (let ((end (gensym 'case)))
+    (seq 
+      (compile-e ev c)
+      (compile-case-lst cs end c)
+      (compile-e el c)
+      (Label end))))  
+
+;; [ListofCaseClause] Expr CEnv -> Asm
+(define (compile-case-lst cs end c)
+  (match cs
+    ['() (seq)]
+    [(cons (Clause p b) xs)
+      (let ((equal (gensym 'lst))
+           (clause (gensym 'lst)))
+        (seq (compile-case-clause (Clause p b) end clause equal)
+            (Label equal)
+            (compile-e b c)
+            (Jmp end)
+            (Label clause)
+            (compile-case-lst xs end c)))]))
+
+;; CaseClause Label Label Label -> Asm
+(define (compile-case-clause clause-exp end clause equal)
+  (match clause-exp
+    [(Clause p b)
+      (match p
+        ['() (seq (Jmp clause))]
+        [(cons n xs)
+          (seq (Mov rdx (value->bits n))
+               (Cmp rax rdx)
+               (Je equal)
+               (compile-case-clause (Clause xs b) end clause equal))])]))
+
+;; [Listof CondClause] Expr -> Asm
+(define (compile-cond cs e c)
+  (match cs
+    ['() (compile-e e c)]  
+    [(cons (Clause p b) xs)
+      (let ((l1 (gensym 'cond))
+            (l2 (gensym 'cond)))
+        (seq (compile-e p c)
+             (Cmp rax (value->bits #f))
+             (Je l1)
+             (compile-e b c)
+             (Jmp l2)
+             (Label l1)
+             (compile-cond xs e c)
+             (Label l2)))]))
+
+;; OpN [Listof Expr] -> Asm
+(define (compile-primN p es)
+  (match op
+    ['+
+      (seq
+        )]
+    [_ 
+      (seq
+        (Jmp 'err))]))
 
 ;; Value -> Asm
 (define (compile-value v)
