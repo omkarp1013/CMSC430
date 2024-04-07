@@ -91,7 +91,11 @@
                   (compile-e n c)
                   (Push rax)
                   (compile-primN '+ xs (cons #f c))
-                  (compile-op2 p))])]
+                  (compile-op2 p)
+                  (Pop rdx)
+                  (assert-integer rdx)
+                  (assert-integer rax)
+                  (Add rax r8))])]
     [_ (Jmp 'err)]))
 
 ;; Expr [Listof CaseClause] Expr CEnv -> Asm
