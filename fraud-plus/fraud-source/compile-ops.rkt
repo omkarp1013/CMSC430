@@ -81,18 +81,23 @@
     ['integer? 
       (seq
         (And rax mask-int)
-        (Cmp rax type-int))]
+        (Cmp rax type-int)
+        if-equal)]
     ['boolean? 
       (let ((l1 (gensym 'bool))
-           (l2 (gensym 'bool)))
+           (l2 (gensym 'bool))
+           (l3 (gensym 'bool)))
         (seq
           (Cmp rax (value->bits #f))
           (Je l1)
           (Cmp rax (value->bits #t))
-          (Jne 'l2)
+          (Jne l2)
           (Label l1)
           (Mov rax (value->bits #t))
-          (Label l2)))]))
+          (Jmp l3)
+          (Label l2)
+          (Mov rax (value->bits #f))
+          (Label l3)))]))
 
 ;; Op2 -> Asm
 (define (compile-op2 p)

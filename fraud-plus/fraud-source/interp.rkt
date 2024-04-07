@@ -9,7 +9,7 @@
 ;; type Value =
 ;; | Integer
 ;; | Boolean
-;; | Character
+;; |acter
 ;; | Eof
 ;; | Void
 
