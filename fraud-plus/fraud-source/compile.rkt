@@ -40,7 +40,7 @@
     [(Prim1 p e) (compile-prim1 p e c)]
     [(Prim2 p e1 e2) (compile-prim2 p e1 e2 c)]
     ;; TODO: implement n-ary primitives
-    [(PrimN p es)    (seq)]    
+    [(PrimN p es)    (compile-primN p es c)]    
     [(If e1 e2 e3)
      (compile-if e1 e2 e3 c)]
     [(Begin e1 e2)
@@ -53,7 +53,20 @@
     [(Let* xs es e)  (seq)]
     [(Case ev cs el) (compile-case ev cs el c)]
     [(Cond cs el)    (compile-cond cs el c)]))
-    
+
+;; OpN OpN [ListOf Expr] -> Asm
+(define (compile-primN p es c)
+  (match p
+    ['+ (match es
+          ['() (seq 
+                (Mov rax 0))]
+          [(cons n xs)
+                (seq
+                  (compile-e n c)
+                  (Push rax)
+                  (compile-primN '+ xs (cons #t c))
+                  (compile-op2 p))])]
+    [_ (Jmp 'err)]))
 
 ;; Expr [Listof CaseClause] Expr CEnv -> Asm
 (define (compile-case ev cs el c)
@@ -105,16 +118,6 @@
              (Label l1)
              (compile-cond xs e c)
              (Label l2)))]))
-
-;; OpN [Listof Expr] -> Asm
-;;; (define (compile-primN p es)
-;;;   (match op
-;;;     ['+
-;;;       (seq
-;;;         )]
-;;;     [_ 
-;;;       (seq
-;;;         (Jmp 'err))]))
 
 ;; Value -> Asm
 (define (compile-value v)
