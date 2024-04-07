@@ -47,12 +47,39 @@
      (compile-begin e1 e2 c)]
     ;; TODO: this only works for single variable binding,
     ;; make it work in general
-    [(Let (list x) (list e1) e2)
-     (compile-let1 x e1 e2 c)]
+    [(Let cs es e) (seq
+                    (compile-e* es c)
+                    (compile-let cs es e c))]
     ;; TODO: implement let*, case, cond
-    [(Let* xs es e)  (seq)]
+    [(Let* cs es e)  (compile-let* cs es e c)]
     [(Case ev cs el) (compile-case ev cs el c)]
     [(Cond cs el)    (compile-cond cs el c)]))
+
+
+;; [ListofId] [Listof Expr] Expr CEnv -> Asm
+(define (compile-let* cs es e c)
+  (match cs
+    ['() 
+      (seq
+          (compile-e e c))]
+    [(cons n xs)
+      (seq
+        (compile-e (car es) c)
+        (Push rax)
+        (compile-let* (cdr cs) (cdr es) e (cons n c))
+        (Add rsp 8))]))
+
+  
+;; [ListOfId] [Listof Expr] Expr CEnv -> Asm
+(define (compile-let cs es e c)
+  (match cs
+    ['() 
+      (seq 
+          (compile-e e c))]
+    [(cons n xs) 
+      (seq
+        (compile-let xs es e (cons n c))
+        (Add rsp 8))]))
 
 ;; OpN OpN [ListOf Expr] -> Asm
 (define (compile-primN p es c)
