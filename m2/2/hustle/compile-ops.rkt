@@ -118,10 +118,13 @@
           (Cmp rax r8)
           if-equal)]
 
-    ;; TODO: implement this
+    ;; TODO: implement this (DONE?)
     ['set-box!
-     (seq)]))
-
+     (seq (Pop r8) ;; e1 in r8
+          (assert-box r8) ;; ensuring e1 is a box
+          (Xor r8 type-box) ;; obtaining heap address of box
+          (Mov (Offset r8 0) rax) ;; moving new value (e2) to memory address
+          (Mov rax (value->bits (void))))]))
 
 ;; -> Asm
 ;; set rax to #t or #f if comparison flag is equal

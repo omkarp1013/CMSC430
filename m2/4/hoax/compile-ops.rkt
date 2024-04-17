@@ -11,6 +11,8 @@
 (define r8  'r8)  ; scratch in op2
 (define r9  'r9)  ; scratch
 (define r10 'r10) ; scratch
+(define r11 'r11) ; scratch
+(define )
 
 (define r15 'r15) ; stack pad (non-volatile)
 (define rsp 'rsp) ; stack
@@ -251,7 +253,47 @@
 
     ;; TODO: implement this
     ['string=?
-     (seq)]))
+     (let ((equal (gensym))
+          (nequal (gensym))
+          (done (gensym)))
+
+       (seq (Pop r8)
+            (assert-string r8)
+            (assert-string rax)
+            ;; Edge case: empty strings
+
+            (Mov r10 (value->bits #f))
+            (Cmp r8 type-str)
+            (Cmove r10 (value->bits #t))
+            (Mov r11 (value->bits #f))
+            (Cmp rax type-str)
+            (Cmove r11 (value->bits #t))
+            (Cmp r10 r11)
+            (Jne nequal)
+
+            (Cmp r10 #t) ;; if both are #t, set rax to #t (otherwise compare chars)
+            (Je equal)
+
+            (Mov r10 (Offset r8 0)) ;; Compare lengths of strings before individual chars (can overwrite r10)
+            (Cmp r10 (Offset rax 0))
+            (Jne nequal)
+         
+            (string=?-helper 8 (Offset r8 0) equal nequal)
+
+            (Label equal)
+            (Mov rax (value->bits) #t)
+            (Jmp done)
+
+            (Label nequal)
+            (Mov rax (value->bits #f))
+            (Label done)))]))
+
+(define (string=?-helper i count equal nequal)
+     (match count
+          [0 (seq (Jmp equal))]
+          [_ (seq (Cmp (Offset r8 i) (Offset rax i)))
+                  (Jne nequal)
+                  (string=?-helper (+ 4 i) (sub1 count) equal nequal)]))
 
 ;; Op3 -> Asm
 (define (compile-op3 p)
