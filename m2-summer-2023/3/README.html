@@ -1,0 +1,55 @@
+<h1 id="cmsc-430-midterm-2-part-3">CMSC 430 Midterm 2, Part 3</h1>
+<h2 id="instructions">Instructions</h2>
+<p>You’ve been provided a slightly modified version of the Hoax language
+as presented in class.</p>
+<p>Many languages, including Racket and Java, will
+<strong><em>intern</em></strong> string literals. Interning string
+literals means that multiple occurrences of the same string literal
+within a program will be allocated just once.</p>
+<p>You can observe this behavior in Racket with the following
+example:</p>
+<pre><code>(eq? &quot;foo&quot; &quot;foo&quot;) ; =&gt; #t</code></pre>
+<p>The <code>eq?</code> function checks for pointer equality.</p>
+<p>The two occurrences of <code>"foo"</code> are pointer-equal to each
+other and in fact there is only one string allocated in memory.</p>
+<p>The Hoax compiler did not do this; it allocated two distinct strings,
+one for each occurrence, and therefore this example would produce
+<code>#f</code> in the compiler as presented in class.</p>
+<p>Interning string literals doesn’t mean that every string that
+consists of the same characters will be pointer-equal to another
+consisting of exactly the same characters. For example:</p>
+<pre><code>(eq? &quot;fff&quot; (make-string 3 #\f)) ; =&gt; #f</code></pre>
+<p>Even though <code>"fff"</code> and <code>(make-string 3 #\f)</code>
+both produce the string <code>"fff"</code>, this example produces false
+because the <code>(make-string 3 #\f)</code> expression allocates a new
+string: it produces <code>"fff"</code> but it is not the
+<strong><em>literal</em></strong> string <code>"fff"</code>.</p>
+<p>One simple way of achieving this kind of string literal interning is
+by program transformation.</p>
+<p>If the original example <code>(eq? "foo" "foo")</code> were instead
+written as <code>(let ((x "foo")) (eq? x x))</code> then an unmodified
+Hoax compiler <strong><em>would</em></strong> produce true.</p>
+<p>This leads to the following idea: take an expression that may contain
+many instances of the same literal string and replace it with a single
+instance of that literal, bound to a variable with many references.</p>
+<p>Design a function:</p>
+<pre><code>;; intern : Expr -&gt; Expr
+;; Transform given expression so that all string literals are interned.</code></pre>
+<p>Your <code>intern</code> function should have the following
+properties:</p>
+<ul>
+<li><p>it preserves the meaning of the original expression with the sole
+exception that literals compared with <code>eq?</code> in the original
+that used to produce <code>#f</code> may now produce
+<code>#t</code>.</p></li>
+<li><p>any string literal should occur at most once in the transformed
+expression.</p></li>
+<li><p>your <code>intern</code> function should cause all of the
+provided compiler tests to pass. Moreover, it should work for any
+possible test involving the Hoax language.</p></li>
+</ul>
+<p>A stub of the function is provided in <code>intern.rkt</code>. This
+is the only file you may change. No other part of the compiler can be
+altered, but notice that the <code>compile</code> function in
+<code>compile.rkt</code> has been changed to call <code>intern</code> on
+the input expression before it is compiled.</p>

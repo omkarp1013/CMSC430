@@ -1,0 +1,87 @@
+<h1 id="cmsc-430-midterm-2-part-4">CMSC 430 Midterm 2, Part 4</h1>
+<h2 id="instructions">Instructions</h2>
+<p>Languages take different approaches when a function is called with
+the wrong number of arguments. Most statically typed languages like
+OCaml and Java will use the type system to rule out such programs.
+Racket treats such mismatches as run-time errors and halts the
+computation when such an error occurs.</p>
+<p>We saw how to implement this run-time error checking mechanism in
+assignment 5. Without adding the arity checking of assignment 5, the
+compilers for Iniquity, Jig, and Loot produce code that simply crashes
+or produces wrong answers when arity mismatches occur.</p>
+<p>Javascript takes a different approach. The design of Javascript is
+largely driven by the philosophy to <strong><em>keep going</em></strong>
+in the face of possible errors. Very few things in Javascript result in
+what we would call a run-time error: something that stops further
+computation. Arity mismatches are a good example. If a function is
+called with the wrong number of arguments in Javascript, the program
+simply keeps going. It doesn’t crash and it doesn’t signal an error. It
+has a well-specified semantics for such cases.</p>
+<p>Here’s what Javascript does:</p>
+<ul>
+<li><p>if a function is called with too many arguments, the extra
+arguments are evaluated but then ignored in the body of the
+function.</p></li>
+<li><p>if a function is called with too few arguments, the remaining
+parameters are bound to a special <code>undefined</code> value.</p></li>
+</ul>
+<p>For example:</p>
+<pre><code>function f(x) { return x; }
+f();</code></pre>
+<p>This calls <code>f</code> with 0 arguments, even though it expects 1,
+hence <code>x</code> is bound to the <code>undefined</code> value and
+therefore the call returns <code>undefined</code>.</p>
+<p>Despite the name, <code>undefined</code> is just a value in
+Javascript. There’s really nothing special about it.</p>
+<p>Here’s a slight modification:</p>
+<pre><code>function f(x, y) { return x; }
+f(1);</code></pre>
+<p>This calls <code>f</code> with 1 argument, even though it expects 2.
+Here <code>x</code> is bound to <code>1</code> and <code>y</code>, since
+there is no second argument, is bound to <code>undefined</code>. But the
+body of the function doesn’t actually use <code>y</code>, so the call
+returns <code>1</code> since that’s what <code>x</code> was bound
+to.</p>
+<p>Let’s see what happens when you call a function with too many
+arguments. For example:</p>
+<pre><code>function f(x) { return x; }
+f(1,2,3);</code></pre>
+<p>This calls <code>f</code> with 3 arguments even though it only
+expects 1. The parameter <code>x</code> is bound to the first argument,
+i.e. <code>1</code>. The remaining arguments are not bound to anything
+and therefore are inaccessible in the body of the function.</p>
+<p>You are given a slightly modified version of the Iniquity language as
+presented in class. Only the interpreter has been modified and it has
+been changed to implement the Javascript-style approach to arity
+mismatches. Instead of <code>undefined</code> it uses <code>void</code>
+as the value to bind to parameters that have no corresponding
+argument.</p>
+<p>There are three example programs corresponding to the Javascript
+programs above:</p>
+<p><code>example1.rkt</code>:</p>
+<pre><code>#lang racket
+(define (f x) x)
+(f) ; =&gt; void</code></pre>
+<p><code>example2.rkt</code>:</p>
+<pre><code>#lang racket
+(define (f x y) x)
+(f 1) ; =&gt; 1</code></pre>
+<p><code>example3.rkt</code>:</p>
+<pre><code>#lang racket
+(define (f x) x)
+(f 1 2 3) ; =&gt; 1</code></pre>
+<p>You can see what the interpreter produces by running:</p>
+<pre><code>cat example1.rkt | racket -t interp-stdin.rkt -m
+cat example2.rkt | racket -t interp-stdin.rkt -m
+cat example3.rkt | racket -t interp-stdin.rkt -m</code></pre>
+<p>Note that this is <strong><em>different</em></strong> from how Racket
+would interpret these programs, which is to signal an error. So if you
+run these programs directly in Racket, you’ll get errors.</p>
+<p>Your job is to modify <code>compile.rkt</code> so that it is
+consistent with the interpreter and also implements the Javascript-style
+approach to function calls.</p>
+<p>A few tests have been added to the test suite to test this behavior,
+but a correct solution should work for more than just the provided
+tests.</p>
+<p>Note: you do not have to change the behavior of primitive operations,
+only user-defined function calls.</p>
