@@ -252,35 +252,43 @@
           (Sal rax char-shift)
           (Or rax type-char))]
 
-    ;; TODO: implement this
-    ['string=?
+
+['string=?
      (let ((equal (gensym))
           (nequal (gensym))
           (loop (gensym))
-          (completed (gensym)))
-       (seq
-            (Mov r11 rax) ;; Moving e2 to r11 to save
-            (string-length-helper) ;; Comparing string lengths first
-            (Mov r8 rax) ;; e2 length from rax -> r8
-            (Pop rax) ;; e1 in rax
-            (Mov r10 rax) ;; Moving e1 to r10 to save
-            (string-length-helper) ;; e1 length in rax
-            (Cmp rax r8) ;; Comparing lengths
-            (Jne nequal)
-            (Cmp rax 0)
+          (comp (gensym)))
+          
+       (seq (Pop r8)
+            (assert-string rax)
+            (assert-string r8)
+            
+            (Cmp rax r8)
             (Je equal)
-
+            (Cmp rax type-str)
+            (Je nequal)
+            (Cmp r8 type-str)
+            (Je nequal)
+            
+            ;; Comparing lengths
+            (Xor rax type-str)
+            (Xor r8 type-str)
+            (Mov rdx (Offset rax 0))
+            (Mov rcx (Offset r8 0))
+            (Cmp rdx rcx)
+            (Jne nequal)
+            
             ;; Comparing individual characters
-            ;; As of this point, e1 is in r10 and e2 in r11
+            (Mov r10 r8)
+            (Mov r11 rax)
+
             (Add r10 8)
             (Add r11 8)
-
-            (Mov rcx rax) ;; rax is length of string
 
             (Label loop)
             (Cmp rcx 0)
             (Je equal)
-
+            
             (Mov eax (Offset r10 0))
             (Sal rax char-shift) ;; e1 is in the lower 32 bits of rax
             (Mov r8 rax)
@@ -295,16 +303,16 @@
             (Add r11 4)
             (Sub rcx 1)
             (Jmp loop)
-
             
             (Label nequal)
             (Mov rax (value->bits #f))
-            (Jmp completed)
+            (Jmp comp)
 
             (Label equal)
             (Mov rax (value->bits #t))
 
-            (Label completed)))]))
+            (Label comp)))]))
+    ;; TODO: implement this
 
 ;; Helper function to find length of string 
 (define (string-length-helper)
