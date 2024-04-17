@@ -34,7 +34,7 @@
       (match (find-defn f ds)
         [(Defn f1 xs e1)
           (if (= (length es) (length xs)) #t #f)]
-        [_ 'err])]))
+        [_ #f])]))
 
 (define (find-defn f ds)
   (match ds

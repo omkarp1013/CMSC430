@@ -9,7 +9,9 @@
                       '(sub 3)))
 (define p3 (parse-prog '(define (mul x y) (* x y))
                       '(mul 4 5)))
+                    
+(define p4 (parse-prog '(mul 4 5)))
 
 (correct-arity? p1)
 (correct-arity? p2)
-(correct-arity? p3)
+(correct-arity? p4)
