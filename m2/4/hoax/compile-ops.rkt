@@ -12,7 +12,8 @@
 (define r9  'r9)  ; scratch
 (define r10 'r10) ; scratch
 (define r11 'r11) ; scratch
-(define )
+(define rcx 'rcx) ; scratch
+(define rdx 'rdx) ; scratch
 
 (define r15 'r15) ; stack pad (non-volatile)
 (define rsp 'rsp) ; stack
@@ -255,45 +256,82 @@
     ['string=?
      (let ((equal (gensym))
           (nequal (gensym))
+          (loop (gensym))
           (done (gensym)))
 
-       (seq (Pop r8)
-            (assert-string r8)
-            (assert-string rax)
-            ;; Edge case: empty strings
-
-            (Mov r10 (value->bits #f))
-            (Cmp r8 type-str)
-            (Cmove r10 (value->bits #t))
-            (Mov r11 (value->bits #f))
-            (Cmp rax type-str)
-            (Cmove r11 (value->bits #t))
-            (Cmp r10 r11)
+       (seq 
+            (Mov r11 rax) ;; Moving e2 to r11 to save
+            (string-length-helper) ;; Comparing string lengths first
+            (Mov r8 rax) ;; e2 length from rax -> r8
+            (Pop rax) ;; e1 in rax
+            (Mov r10 rax) ;; Moving e1 to r10 to save
+            (string-length-helper) ;; e1 length in rax
+            (Cmp rax r8) ;; Comparing lengths
             (Jne nequal)
 
-            (Cmp r10 #t) ;; if both are #t, set rax to #t (otherwise compare chars)
+            ;; Comparing individual characters
+            (Mov rcx rax)
+            (Sub rcx 1) 
+            (Mov r8 0)        
+
+            (Label loop)
+            (Cmp rcx r8)
             (Je equal)
 
-            (Mov r10 (Offset r8 0)) ;; Compare lengths of strings before individual chars (can overwrite r10)
-            (Cmp r10 (Offset rax 0))
+            (Mov rax r10) ;; moving pointer to e1 to rax (for string-ref)
+            (string-ref-helper) ;; obtaining char for    
+            (Mov rdx rax)
+            (Mov rax r11)
+            (string-ref-helper)
+            (Cmp rdx rax)
             (Jne nequal)
-         
-            (string=?-helper 8 (Offset r8 0) equal nequal)
+
+            (Add r8 1)
+            (Jmp loop)
 
             (Label equal)
-            (Mov rax (value->bits) #t)
+            (Mov rax (value->bits #t))
             (Jmp done)
 
             (Label nequal)
             (Mov rax (value->bits #f))
             (Label done)))]))
 
-(define (string=?-helper i count equal nequal)
-     (match count
-          [0 (seq (Jmp equal))]
-          [_ (seq (Cmp (Offset r8 i) (Offset rax i)))
-                  (Jne nequal)
-                  (string=?-helper (+ 4 i) (sub1 count) equal nequal)]))
+;; Helper function to find length of string 
+(define (string-length-helper)
+     (let ((zero (gensym))
+          (done (gensym)))
+       (seq (assert-string rax)
+            (Xor rax type-str)
+            (Cmp rax 0)
+            (Je zero)
+            (Mov rax (Offset rax 0))
+            (Sal rax int-shift)
+            (Jmp done)
+            (Label zero)
+            (Mov rax 0)
+            (Label done))))
+
+;; Helper function to return character of a particular string
+(define (string-ref-helper)
+  (seq (assert-string rax) 
+      (assert-integer r8) 
+      (Cmp rax type-str) 
+      (Je 'err) ; special case for empty string
+      (Cmp r8 0) 
+      (Jl 'err)
+      (Xor rax type-str)       ; rax = ptr
+      (Mov r9 (Offset rax 0))  ; r9 = len
+      (Sar r8 int-shift)       ; r8 = index
+      (Sub r9 1)
+      (Cmp r9 r8) 
+      (Jl 'err)
+      (Sal r8 2)
+      (Add rax r8)
+      (Mov 'eax (Offset rax 8))
+      (Sal rax char-shift)
+      (Or rax type-char)))
+
 
 ;; Op3 -> Asm
 (define (compile-op3 p)
