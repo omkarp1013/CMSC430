@@ -14,7 +14,32 @@
 ;; Determine if every application of a function has the correct
 ;; number of arguments in the program
 (define (correct-arity? p)
-  #t)
+  (match p
+    [(Prog ds e) (correct-arity-exp? ds e)]
+    [_ 'err]))
+
+(define (correct-arity-exp? ds e)
+  (match e
+    [(Lit s) #t]
+    [(Var s) #t]
+    [(Eof) #t]
+    [(Empty) #t]
+    [(Prim0 p0) #t]
+    [(Prim1 p1 e1) (correct-arity-exp? ds e1)]
+    [(Prim2 p2 e1 e2) (and (correct-arity-exp? ds e1) (correct-arity-exp? ds e2))]
+    [(Prim3 p3 e1 e2 e3) (and (correct-arity-exp? ds e1) (and (correct-arity-exp? e2) (correct-arity-exp? e3)))]
+    [(If e1 e2 e3) (and (correct-arity-exp? ds e1) (and (correct-arity-exp? e2) (correct-arity-exp? e3)))]
+    [(Let x e1 e2) (and (correct-arity-exp? ds e1) (correct-arity-exp? ds e2))]
+    [(App f es)
+      (match (find-defn f ds)
+        [(Defn f1 xs e1)
+          (if (= (length es) (length xs)) #t #f)]
+        [_ 'err])]))
+
+(define (find-defn f ds)
+  (match ds
+    ['() 'err]
+    [(cons (Defn f1 xs e1) dr) (if (equal? f f1) (Defn f1 xs e1) (find-defn f xs))]))
 
 ;; S-Expr ... -> Prog
 (define (parse-prog . s)
