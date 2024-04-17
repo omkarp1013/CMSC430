@@ -257,9 +257,8 @@
      (let ((equal (gensym))
           (nequal (gensym))
           (loop (gensym))
-          (done (gensym)))
-
-       (seq 
+          (completed (gensym)))
+       (seq
             (Mov r11 rax) ;; Moving e2 to r11 to save
             (string-length-helper) ;; Comparing string lengths first
             (Mov r8 rax) ;; e2 length from rax -> r8
@@ -268,34 +267,44 @@
             (string-length-helper) ;; e1 length in rax
             (Cmp rax r8) ;; Comparing lengths
             (Jne nequal)
-
-            ;; Comparing individual characters
-            (Mov rcx rax)
-            (Sub rcx 1) 
-            (Mov r8 0)        
-
-            (Label loop)
-            (Cmp rcx r8)
+            (Cmp rax 0)
             (Je equal)
 
-            (Mov rax r10) ;; moving pointer to e1 to rax (for string-ref)
-            (string-ref-helper) ;; obtaining char for    
-            (Mov rdx rax)
-            (Mov rax r11)
-            (string-ref-helper)
-            (Cmp rdx rax)
+            ;; Comparing individual characters
+            ;; As of this point, e1 is in r10 and e2 in r11
+            (Add r10 8)
+            (Add r11 8)
+
+            (Mov rcx rax) ;; rax is length of string
+
+            (Label loop)
+            (Cmp rcx 0)
+            (Je equal)
+
+            (Mov eax (Offset r10 0))
+            (Sal rax char-shift) ;; e1 is in the lower 32 bits of rax
+            (Mov r8 rax)
+
+            (Mov eax (Offset r11 0))
+            (Sal rax char-shift)
+            
+            (Cmp r8 rax)
             (Jne nequal)
 
-            (Add r8 1)
+            (Add r10 4)
+            (Add r11 4)
+            (Sub rcx 1)
             (Jmp loop)
+
+            
+            (Label nequal)
+            (Mov rax (value->bits #f))
+            (Jmp completed)
 
             (Label equal)
             (Mov rax (value->bits #t))
-            (Jmp done)
 
-            (Label nequal)
-            (Mov rax (value->bits #f))
-            (Label done)))]))
+            (Label completed)))]))
 
 ;; Helper function to find length of string 
 (define (string-length-helper)
@@ -311,27 +320,6 @@
             (Label zero)
             (Mov rax 0)
             (Label done))))
-
-;; Helper function to return character of a particular string
-(define (string-ref-helper)
-  (seq (assert-string rax) 
-      (assert-integer r8) 
-      (Cmp rax type-str) 
-      (Je 'err) ; special case for empty string
-      (Cmp r8 0) 
-      (Jl 'err)
-      (Xor rax type-str)       ; rax = ptr
-      (Mov r9 (Offset rax 0))  ; r9 = len
-      (Sar r8 int-shift)       ; r8 = index
-      (Sub r9 1)
-      (Cmp r9 r8) 
-      (Jl 'err)
-      (Sal r8 2)
-      (Add rax r8)
-      (Mov 'eax (Offset rax 8))
-      (Sal rax char-shift)
-      (Or rax type-char)))
-
 
 ;; Op3 -> Asm
 (define (compile-op3 p)

@@ -4,8 +4,11 @@
 
 (define (test run)
   (begin ;; string=?
+    (check-equal? (run '(string=? "" "a")) #f)
+    (check-equal? (run '(string=? "a" "ab")) #f)
     (check-equal? (run '(string=? "abc" "abc")) #t)
     (check-equal? (run '(string=? "abc" "abcd")) #f)
+    (check-equal? (run '(string=? "" "")) #t)
     (check-equal? (run '(string=? 1 2)) 'err))
 
   (begin ;; Abscond
@@ -200,4 +203,3 @@
                   (cons 97 ""))
     (check-equal? (run "b" '(let ((x 97)) (begin (peek-byte) x)))
                   (cons 97 ""))))
-
