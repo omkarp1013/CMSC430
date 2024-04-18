@@ -252,7 +252,7 @@
           (Sal rax char-shift)
           (Or rax type-char))]
 
-
+;; TODO: implement this
 ['string=?
      (let ((equal (gensym))
           (nequal (gensym))
@@ -263,10 +263,13 @@
             (assert-string rax)
             (assert-string r8)
             
+            ;; Edge cases for empty string
             (Cmp rax r8)
             (Je equal)
+
             (Cmp rax type-str)
             (Je nequal)
+
             (Cmp r8 type-str)
             (Je nequal)
             
@@ -304,15 +307,13 @@
             (Sub rcx 1)
             (Jmp loop)
             
-            (Label nequal)
-            (Mov rax (value->bits #f))
-            (Jmp comp)
-
             (Label equal)
             (Mov rax (value->bits #t))
+            (Jmp comp)
 
+            (Label nequal)
+            (Mov rax (value->bits #f))
             (Label comp)))]))
-    ;; TODO: implement this
 
 ;; Helper function to find length of string 
 (define (string-length-helper)

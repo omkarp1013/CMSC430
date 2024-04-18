@@ -15,9 +15,10 @@
                           [(list 1 2) #t]
                           [_ #f]))
                   #f)
-    (check-equal? (run '(match (cons )))))
-                                      
-  
+    (check-equal? (run '(match (cons 1 (cons 2 (cons 3 (cons 4 (cons 5 '())))))
+                          [(list 1 2 3 4 5) #t]
+                          [_ #f])) #t))
+                                        
   (begin ;; Abscond
     (check-equal? (run 7) 7)
     (check-equal? (run -8) -8))

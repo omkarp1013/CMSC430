@@ -8,7 +8,10 @@
     (check-equal? (run '(string=? "a" "ab")) #f)
     (check-equal? (run '(string=? "abc" "abc")) #t)
     (check-equal? (run '(string=? "" "")) #t)
-    (check-equal? (run '(string=? 1 2)) 'err))
+    (check-equal? (run '(string=? 1 2)) 'err)
+    (check-equal? (run '(string=? "a" "")) #f)
+    (check-equal? (run '(string=? "abcdefg" "abcdefg")) #t)
+    (check-equal? (run '(string=? "abcdefg" "abcdef")) #f))
 
   (begin ;; Abscond
     (check-equal? (run 7) 7)

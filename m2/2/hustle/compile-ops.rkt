@@ -118,7 +118,7 @@
           (Cmp rax r8)
           if-equal)]
 
-    ;; TODO: implement this (DONE?)
+    ;; TODO: implement this
     ['set-box!
      (seq (Pop r8) ;; e1 in r8
           (assert-box r8) ;; ensuring e1 is a box

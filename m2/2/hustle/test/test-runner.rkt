@@ -11,7 +11,14 @@
                   (box 7))
     (check-equal? (run '(set-box! (box 5) 7))
                   (void))
-    (check-equal? (run '(set-box! #f 7)) 'err))
+    (check-equal? (run '(set-box! #f 7)) 'err)
+
+    (check-equal? (run '(let ((b (box (cons 1 2))))
+                          (begin (set-box! b (cons 2 3))
+                                 (unbox b)))) (cons 2 3))
+    (check-equal? (run '(let ((b (box (box 1))))
+                      (begin (set-box! b (box 2))
+                              (unbox b)))) (box 2)))
   
   (begin ;; Abscond
     (check-equal? (run 7) 7)
