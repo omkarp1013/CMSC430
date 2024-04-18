@@ -1,6 +1,7 @@
 #lang racket
 (provide test test/io)
 (require rackunit)
+(require "../parse.rkt")
 
 (define (test run)
   (begin ;; Abscond
