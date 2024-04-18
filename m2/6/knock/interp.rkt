@@ -126,7 +126,15 @@
 
     ;; TODO: implement this new pattern
     [(List ps)
-     #f]))
+     (match ps
+      [(cons n1 xs1)      
+       (match v
+        [(cons n2 xs2)
+         (match (interp-match-pat n1 n2 r)
+          [#f #f]
+          [r1 (interp-match-pat (List xs1) xs2 r1)])]
+        [_ #f])]
+      ['() (and (eqv? '() v) r)])]))
 
 ;; Defns Symbol -> Defn
 (define (defns-lookup ds f)
