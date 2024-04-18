@@ -30,6 +30,7 @@
     [(Prim3 p3 e1 e2 e3) (and (correct-arity-exp? ds e1) (and (correct-arity-exp? e2) (correct-arity-exp? e3)))]
     [(If e1 e2 e3) (and (correct-arity-exp? ds e1) (and (correct-arity-exp? e2) (correct-arity-exp? e3)))]
     [(Let x e1 e2) (and (correct-arity-exp? ds e1) (correct-arity-exp? ds e2))]
+    [(Begin e1 e2) (and (correct-arity-exp? ds e1) (correct-arity-exp? ds e2))]
     [(App f es)
       (match (find-defn f ds)
         [(Defn f1 xs e1)

@@ -278,7 +278,3 @@
                        '(let ((z 97))
                           (f z 98)))
                   (cons (void) "a"))))
-
-(parse '(define (f x y) (sub1 x)) '(f 3 5 3))
-(parse '(define (f x y z a b c) (zero? x)) '(f 3 5 3))
-(parse '(define (f a b c d e) (add1 x)) '(f 3 5 3 1 1 2))
