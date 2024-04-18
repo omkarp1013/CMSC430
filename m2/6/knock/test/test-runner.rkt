@@ -14,7 +14,8 @@
     (check-equal? (run '(match (cons 1 2)
                           [(list 1 2) #t]
                           [_ #f]))
-                  #f))
+                  #f)
+    (check-equal? (run '(match (cons )))))
                                       
   
   (begin ;; Abscond
