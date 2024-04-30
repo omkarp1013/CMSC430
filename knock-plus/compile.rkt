@@ -295,13 +295,38 @@
                    (Mov rax (Offset rsp (* 8 (- (sub1 (length cm1)) (length cm)))))
                    i2)
               cm2))])])]
-    ;; TODO
-    ;; This code just pops and goes to next clause.
-    ;; Replace with code that implements pattern.
+    ;; Done
     [(List ps)
-     (list (seq (Add rsp (* 8 (length cm)))
-                (Jmp next))
-           cm)]
+     (match ps
+      ['()
+        (let ((ok (gensym)))
+          (list (seq (Cmp rax (value->bits '()))
+                     (Je ok)
+                     (Add rsp (* 8 (length cm)))
+                     (Jmp next)
+                     (Label ok)) 
+                cm))]
+      [(cons p px)
+       (match (compile-pattern p (cons #f cm) next)
+          [(list i1 cm1)
+            (match (compile-pattern (List px) cm1 next)
+              [(list i2 cm2)
+               (let ((ok (gensym)))
+                (list (seq (Mov r8 rax)
+                           (And r8 ptr-mask)
+                           (Cmp r8 type-cons)
+                           (Je ok)
+                           (Add rsp (* 8 (length cm))) ;; haven't pushed anything to stack yet
+                           (Jmp next)
+                           (Label ok)
+                           (Xor rax type-cons)
+                           (Mov r8 (Offset rax 0))
+                           (Push r8) ; push "cdr"
+                           (Mov rax (Offset rax 8))
+                           i1
+                           (Mov rax (Offset rsp (* 8 (- (sub1 (length cm1)) (length cm)))))
+                           i2)
+                  cm2))])])])]
     ;; TODO
     ;; This code just pops and goes to next clause.
     ;; Replace with code that implements pattern.
