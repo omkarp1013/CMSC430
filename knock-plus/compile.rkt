@@ -328,8 +328,6 @@
                            i2)
                   cm2))])])])]
     ;; TODO
-    ;; This code just pops and goes to next clause.
-    ;; Replace with code that implements pattern.
     [(Vect ps)
       (match ps
         ['()
@@ -342,7 +340,7 @@
         [(cons p px)
           (list (seq (xx)))
 
-          (match (compile-pattern (Offset rax 16) cm next)
+          (match (compile-pattern (Offset rax (length rax)) cm next)
             [(list i1 cm1) 
               (match (compile-pattern (Vect px) cm1 16) next
                 [(list i2 cm2)
