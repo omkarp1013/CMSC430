@@ -145,6 +145,16 @@
              ['err 'err]
              [_ r])]
           [_ 'err])])]))
+
+;; [Listof Pat] Value Nat Env Defns -> [Maybe Env] | 'err
+(define (interp-match-pat-vector ps v i r ds)
+  (match ps
+    ['() r]
+    [(cons p ps)
+     (match (interp-match-pat p (vector-ref v i) r ds)
+       [#f #f]
+       ['err 'err]
+       [r1 (interp-match-pat-vector ps v (add1 i) r1 ds)])]))
         
 ;; [Listof Pat] Value Env Defns -> [Maybe Env] | 'err
 (define (interp-match-pat-list ps v r ds)
@@ -161,16 +171,6 @@
           ['err 'err]
           [r1 (interp-match-pat-list ps vs r1 ds)])]
        [_ #f])]))
-
-;; [Listof Pat] Value Nat Env Defns -> [Maybe Env] | 'err
-(define (interp-match-pat-vector ps v i r ds)
-  (match ps
-    ['() r]
-    [(cons p ps)
-     (match (interp-match-pat p (vector-ref v i) r ds)
-       [#f #f]
-       ['err 'err]
-       [r1 (interp-match-pat-vector ps v (add1 i) r1 ds)])]))
 
 ;; Defns Symbol -> Defn
 (define (defns-lookup ds f)
