@@ -331,9 +331,35 @@
     ;; This code just pops and goes to next clause.
     ;; Replace with code that implements pattern.
     [(Vect ps)
-     (list (seq (Add rsp (* 8 (length cm)))
-                (Jmp next))
-           cm)]
+      (match ps
+        ['()
+          (let ((ok (gensym)))
+            (list (seq (Cmp rax type-vect)
+                       (Je ok)
+                       (Add rsp (* 8 (length cm)))
+                       (Label ok)) 
+                cm))]
+        [(cons p px)
+          (match (compile-pattern p (cons #f cm) next)
+            [(list i1 cm1)
+              (match (compile-pattern (Vect px) cm1 next)
+                [(list i2 cm2)
+                  (let ((ok (gensym)))
+                    (list (seq (Mov r8 rax) 
+                               (And r8 ptr-mask)
+                               (Cmp r8 type-vect)
+                               (Je ok)
+                               (Add rsp (* 8 (length cm)))
+                               (Jmp next)
+                               (Label ok)
+                               (Xor rax type-vect)
+                               (Mov r8 (Offset rax 0))
+                               (Push r8)
+                               (Mov rax (Offset rax 8))
+                               i1
+                               (Mov rax (Offset rsp (* 8 (- (sub1 (length cm1)) (length cm)))))
+                               i2)
+                      cm2))])])])]
     ;; TODO
     ;; This code just pops and goes to the next clause.
     ;; Replace with code that implements pattern.
