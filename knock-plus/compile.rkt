@@ -327,7 +327,12 @@
                            (Mov rax (Offset rsp (* 8 (- (sub1 (length cm1)) (length cm)))))
                            i2)
                   cm2))])])])]
-    ;; TODO
+    ;; TODO 
+    ;; generate some instructions to check if length, if it is actually a vector, and if rax contains empty vector
+    ;; outer portion: helper function, generates instructions after edge cases checks,
+    ;; helper function: copied cons code, got rid of their edge case checks, made it work for his
+    ;; outer one: compile first element of list, call helper with updated indexed variable and increment by 8
+    ;; Push rax, (Mov rax (Offset 8 * i), i1 (generate 4 lines of code for each part), Mov into rax for Offset, i2
     ;; Mov required pointer to rax and execute next Asm block (append new env as well)
     [(Vect ps)
       (match ps
@@ -356,9 +361,10 @@
      (list (seq (Add rsp (* 8 (length cm)))
                 (Jmp next))
            cm)]))
+  
 
-(define (compile-pattern-helper cm next i)
-  (list (seq ) (cdr (compile-pattern (Offset rax (+ 8 i))))))
+(define (compile-vec-helper cm next i)
+  (list (seq ) (cdr (compile-pattern (Offset rax (+ 8 i)))))
   (compile-pattern (Offset rax (+ 8 i)) cm next))
 
 (define (vec-len) ;; helper function to get length of a vector
