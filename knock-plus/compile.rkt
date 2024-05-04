@@ -354,32 +354,27 @@
                   (let ((ok (gensym)))
                     (list (seq ()) cmn))])]
             [(conx x xs)])])]
-    ;; TODO
-    ;; This code just pops and goes to the next clause.
-    ;; Replace with code that implements pattern.
+
+    ;; Done
     [(Pred f)
-     (list (seq (Add rsp (* 8 (length cm)))
-                (Jmp next))
-           cm)]))
+      (let ((r (gensym 'ret))
+           (ok (gensym)))
+        (list (seq (Lea r8 r)
+                   (Push r8)
+                   (Push rax)
+                   (Jmp (symbol->label f))
+                   (Label r)
+                   (Cmp rax (value->bits #f))
+                   (Jne ok)
+                   (Add rsp (* 8 (length cm)))
+                   (Jmp next)
+                   (Label ok))
+          cm))]))
   
 
 (define (compile-vec-helper cm next i)
-  (list (seq ) (cdr (compile-pattern (Offset rax (+ 8 i)))))
-  (compile-pattern (Offset rax (+ 8 i)) cm next))
+  (match (compile-pattern cm next)))
 
-(define (vec-len) ;; helper function to get length of a vector
-  (let ((zero (gensym))
-           (done (gensym)))
-       (seq (assert-vector rax)
-            (Xor rax type-vect)
-            (Cmp rax 0)
-            (Je zero)
-            (Mov rax (Offset rax 0))
-            (Sal rax int-shift)
-            (Jmp done)
-            (Label zero)
-            (Mov rax 0)
-            (Label done))))
 
 ;; Id CEnv -> Integer
 (define (lookup x cenv)
