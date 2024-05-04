@@ -328,6 +328,7 @@
                            i2)
                   cm2))])])])]
     ;; TODO
+    ;; Mov required pointer to rax and execute next Asm block (append new env as well)
     [(Vect ps)
       (match ps
         ['()
@@ -338,14 +339,16 @@
                        (Label ok)) 
                 cm))]
         [(cons p px)
-          (list (seq (xx)))
+          () ;; comparing length of vector and 
+          (match (compile-pattern-helper cm next 0))
 
-          (match (compile-pattern (Offset rax (length rax)) cm next)
-            [(list i1 cm1) 
-              (match (compile-pattern (Vect px) cm1 16) next
-                [(list i2 cm2)
-                  ])]
-          )])]
+          (match px
+            ['() 
+              (match (compile-pattern (Offset rax 8) cmi next)
+                [(list in cmn)
+                  (let ((ok (gensym)))
+                    (list (seq ()) cmn))])]
+            [(conx x xs)])])]
     ;; TODO
     ;; This code just pops and goes to the next clause.
     ;; Replace with code that implements pattern.
@@ -355,7 +358,22 @@
            cm)]))
 
 (define (compile-pattern-helper cm next i)
+  (list (seq ) (cdr (compile-pattern (Offset rax (+ 8 i))))))
   (compile-pattern (Offset rax (+ 8 i)) cm next))
+
+(define (vec-len) ;; helper function to get length of a vector
+  (let ((zero (gensym))
+           (done (gensym)))
+       (seq (assert-vector rax)
+            (Xor rax type-vect)
+            (Cmp rax 0)
+            (Je zero)
+            (Mov rax (Offset rax 0))
+            (Sal rax int-shift)
+            (Jmp done)
+            (Label zero)
+            (Mov rax 0)
+            (Label done))))
 
 ;; Id CEnv -> Integer
 (define (lookup x cenv)
