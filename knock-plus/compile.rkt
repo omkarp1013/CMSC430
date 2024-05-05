@@ -348,7 +348,7 @@
                 cm))]
         [(cons p px)
           (match (compile-vec-helper (Vect ps) cm next 8)
-            [(list i cm)
+            [(list i1 cm1)
                 (let ((ok (gensym))
                       (not (gensym)))
                   (list (seq (Mov r8 rax)
@@ -358,7 +358,7 @@
 
                              (Cmp rax type-vect)
                              (Je not)
-t
+
                              (Xor rax type-vect)
                              (Mov r8 (Offset rax 0))
                              (Cmp r8 (length ps)) ;; ensuring length is equal
@@ -369,8 +369,8 @@ t
 
                              (Jmp next)
                              (Label ok)
-                            i)
-                    cm))])])]
+                            i1)
+                    cm1))])])]
 
     ;; Done
     [(Pred f)

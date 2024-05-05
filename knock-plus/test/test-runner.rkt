@@ -274,6 +274,10 @@
                           [_ 0]))
                   5)
 
+A command can be specified by an unambiguous prefix.
+See `raco help' for a complete list of commands.
+See `raco help <command>' for help on a command.
+
     (check-equal? (run '(match (vector 1 2 3)
                           [(vector 1 x 4) (+ x 1)]
                           [_ 0]))
