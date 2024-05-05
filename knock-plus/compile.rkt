@@ -345,22 +345,26 @@
                        (Label ok1)) 
                 cm))]
         [(cons p px)
-          (match (compile-vec-helper (Vect ps) cm 8 next)
+          (match (compile-vec-helper (Vect ps) cm next 8)
             [(list i cm)
                 (let ((ok2 (gensym))
                       (not (gensym)))
                   (list (seq (Mov r8 rax)
-                             (Mov rcx (Offset r8 0))
-                             (Cmp rcx (length ps)) ;; ensuring length is equal
-                             (Jne not)
                              (And r8 ptr-mask)
                              (Cmp r8 type-vect)
+                             (Jne not)
+
+                             (Cmp r8 0)
+                             (Je not)
+
+                             (Xor rax type-vect)
+                             (Mov r8 (Offset rax 0))
+                             (Cmp r8 (length ps)) ;; ensuring length is equal
                              (Je ok2)
                              (Label not)
                              (Add rsp (* 8 (length cm)))
                              (Jmp next)
                              (Label ok2)
-                             (Xor r8 type-vect)
                             i)
                     cm))])])]
 
@@ -386,7 +390,7 @@
     ;; empty list (p) edge case?
     [(Vect '())
       (list (seq) cm)]
-    
+
     [(Vect (cons p px))
       (match (compile-pattern p (cons #f cm) next)
         [(list i1 cm1)
