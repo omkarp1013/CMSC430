@@ -312,13 +312,20 @@
           [(list i1 cm1)
             (match (compile-pattern (List px) cm1 next)
               [(list i2 cm2)
-               (let ((ok (gensym)))
+               (let ((ok (gensym))
+                    (not (gensym)))
                 (list (seq (Mov r8 rax)
                            (And r8 ptr-mask)
                            (Cmp r8 type-cons)
-                           (Je ok)
+                           (Jne not)
+
+                           (Cmp r8 (value->bits '()))
+                           (Jne ok)
+
+                           (Label not)
                            (Add rsp (* 8 (length cm))) ;; haven't pushed anything to stack yet
                            (Jmp next)
+                           
                            (Label ok)
                            (Xor rax type-cons)
                            (Mov r8 (Offset rax 0))
@@ -328,12 +335,7 @@
                            (Mov rax (Offset rsp (* 8 (- (sub1 (length cm1)) (length cm)))))
                            i2)
                   cm2))])])])]
-    ;; TODO 
-    ;; generate some instructions to check if length, if it is actually a vector, and if rax contains empty vector
-    ;; outer portion: helper function, generates instructions after edge cases checks,
-    ;; helper function: copied cons code, got rid of their edge case checks, made it work for his
-    ;; outer one: compile first element of list, call helper with updated index variable and increment by 8
-    ;; Push rax, (Mov rax (Offset 8 * i), i1 (generate 4 lines of code for each part), Mov into rax for Offset, i2
+    ;; Done?
     [(Vect ps)
       (match ps
         ['()
@@ -385,9 +387,9 @@
           cm))]))
   
 
-(define (compile-vec-helper p cm next i) ;; how does helper compile each part? do we just use compile-pattern, YES
+(define (compile-vec-helper p cm next i)
   (match p
-    ;; empty list (p) edge case?
+    ;; empty list (p) edge case
     [(Vect '())
       (list (seq) cm)]
 
