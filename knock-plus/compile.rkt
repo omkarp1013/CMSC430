@@ -330,10 +330,9 @@
     ;; TODO 
     ;; generate some instructions to check if length, if it is actually a vector, and if rax contains empty vector
     ;; outer portion: helper function, generates instructions after edge cases checks,
-    ;; helper function: copied cons code, got rid of their edge case checks, made it work for his
-    ;; outer one: compile first element of list, call helper with updated indexed variable and increment by 8
+    ;; helper function: copied list code, got rid of their edge case checks, made it work for his
+    ;; outer one: compile first element of list, call helper with updated index variable and increment by 8
     ;; Push rax, (Mov rax (Offset 8 * i), i1 (generate 4 lines of code for each part), Mov into rax for Offset, i2
-    ;; Mov required pointer to rax and execute next Asm block (append new env as well)
     [(Vect ps)
       (match ps
         ['()
@@ -344,16 +343,25 @@
                        (Label ok)) 
                 cm))]
         [(cons p px)
-          () ;; comparing length of vector and 
-          (match (compile-pattern-helper cm next 0))
-
-          (match px
-            ['() 
-              (match (compile-pattern (Offset rax 8) cmi next)
-                [(list in cmn)
+          (match (compile-vec-helper p (cons #f cm) 8 next)
+            [(list i1 cm1)
+              (match (compile-pattern (Vect px) cm1 () next)
+                [(list i2 cm2)
                   (let ((ok (gensym)))
-                    (list (seq ()) cmn))])]
-            [(conx x xs)])])]
+                       ((loop (gensym)))
+                    (list (seq 
+                               (Mov r8 rax)
+                               (And r8 ptr-mask)
+                               (Cmp r8 type-vect)
+                               (Je ok)
+                               (Add rsp (* 8 (length cm)))
+                               (Jmp next)
+                               (Label ok)
+                               (Xor r8 type-vect)
+                               (Push r8)
+                               i1
+                               (Mov ))
+                      cm2))])])])]
 
     ;; Done
     [(Pred f)
