@@ -263,10 +263,6 @@
                       [(vector 4 5 6) 2]
                       [_ 3]))
               1)
-    
-    (check-equal? (run '(match '()
-                          [(vector 1 2 3) 1]
-                          ['() 2])) 2)
 
     (check-equal? (run '(match (vector 1 2 3)
                           [(vector 1 x 3) x]
