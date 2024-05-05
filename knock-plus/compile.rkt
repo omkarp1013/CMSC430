@@ -10,6 +10,7 @@
 (define rsp 'rsp) ; stack
 (define rdi 'rdi) ; arg
 (define r8  'r8)  ; scratch
+(define rcx 'rcx) ; scratch
 (define r15 'r15) ; stack pad (non-volatile)
 
 ;; Prog -> Asm
@@ -330,38 +331,38 @@
     ;; TODO 
     ;; generate some instructions to check if length, if it is actually a vector, and if rax contains empty vector
     ;; outer portion: helper function, generates instructions after edge cases checks,
-    ;; helper function: copied list code, got rid of their edge case checks, made it work for his
+    ;; helper function: copied cons code, got rid of their edge case checks, made it work for his
     ;; outer one: compile first element of list, call helper with updated index variable and increment by 8
     ;; Push rax, (Mov rax (Offset 8 * i), i1 (generate 4 lines of code for each part), Mov into rax for Offset, i2
     [(Vect ps)
       (match ps
         ['()
-          (let ((ok (gensym)))
+          (let ((ok1 (gensym)))
             (list (seq (Cmp rax type-vect)
-                       (Je ok)
+                       (Je ok1)
                        (Add rsp (* 8 (length cm)))
-                       (Label ok)) 
+                       (Jmp next)
+                       (Label ok1)) 
                 cm))]
         [(cons p px)
-          (match (compile-vec-helper p (cons #f cm) 8 next)
-            [(list i1 cm1)
-              (match (compile-pattern (Vect px) cm1 () next)
-                [(list i2 cm2)
-                  (let ((ok (gensym)))
-                       ((loop (gensym)))
-                    (list (seq 
-                               (Mov r8 rax)
-                               (And r8 ptr-mask)
-                               (Cmp r8 type-vect)
-                               (Je ok)
-                               (Add rsp (* 8 (length cm)))
-                               (Jmp next)
-                               (Label ok)
-                               (Xor r8 type-vect)
-                               (Push r8)
-                               i1
-                               (Mov ))
-                      cm2))])])])]
+          (match (compile-vec-helper (Vect ps) cm 8 next)
+            [(list i cm)
+                (let ((ok2 (gensym))
+                      (not (gensym)))
+                  (list (seq (Mov r8 rax)
+                             (Mov rcx (Offset r8 0))
+                             (Cmp rcx (length ps)) ;; ensuring length is equal
+                             (Jne not)
+                             (And r8 ptr-mask)
+                             (Cmp r8 type-vect)
+                             (Je ok2)
+                             (Label not)
+                             (Add rsp (* 8 (length cm)))
+                             (Jmp next)
+                             (Label ok2)
+                             (Xor r8 type-vect)
+                            i)
+                    cm))])])]
 
     ;; Done
     [(Pred f)
@@ -380,9 +381,23 @@
           cm))]))
   
 
-(define (compile-vec-helper cm next i)
-  (match (compile-pattern cm next)))
-
+(define (compile-vec-helper p cm next i) ;; how does helper compile each part? do we just use compile-pattern, YES
+  (match p
+    ;; empty list (p) edge case?
+    [(Vect '())
+      (list (seq) cm)]
+    
+    [(Vect (cons p px))
+      (match (compile-pattern p (cons #f cm) next)
+        [(list i1 cm1)
+          (match (compile-vec-helper (Vect px) cm1 next (+ 8 i))
+            [(list i2 cm2)
+              (list (seq (Push rax)
+                         (Mov rax (Offset rax i))
+                         i1
+                         (Mov rax (Offset rsp (* 8 (- (sub1 (length cm1)) (length cm)))))
+                         i2)
+                cm2)])])]))
 
 ;; Id CEnv -> Integer
 (define (lookup x cenv)
