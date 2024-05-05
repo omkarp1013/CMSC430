@@ -319,13 +319,13 @@
                            (Cmp r8 type-cons)
                            (Jne not)
 
-                           (Cmp r8 (value->bits '()))
+                           (Cmp rax (value->bits '()))
                            (Jne ok)
 
                            (Label not)
                            (Add rsp (* 8 (length cm))) ;; haven't pushed anything to stack yet
                            (Jmp next)
-                           
+
                            (Label ok)
                            (Xor rax type-cons)
                            (Mov r8 (Offset rax 0))
@@ -349,24 +349,26 @@
         [(cons p px)
           (match (compile-vec-helper (Vect ps) cm next 8)
             [(list i cm)
-                (let ((ok2 (gensym))
+                (let ((ok (gensym))
                       (not (gensym)))
                   (list (seq (Mov r8 rax)
                              (And r8 ptr-mask)
                              (Cmp r8 type-vect)
                              (Jne not)
 
-                             (Cmp r8 0)
+                             (Cmp rax type-vect)
                              (Je not)
-
+t
                              (Xor rax type-vect)
                              (Mov r8 (Offset rax 0))
                              (Cmp r8 (length ps)) ;; ensuring length is equal
-                             (Je ok2)
+                             (Je ok)
+
                              (Label not)
                              (Add rsp (* 8 (length cm)))
+
                              (Jmp next)
-                             (Label ok2)
+                             (Label ok)
                             i)
                     cm))])])]
 
