@@ -96,11 +96,35 @@
              (compile-e e (cons x (reverse xs)))
              (Add rsp (* 8 (+ (length xs) 1)))
              (Ret)))]
-    [_
-     (seq)]))
+    [(FunCase cs)
+      (seq (Label (symbol->label f))
+           (fun-case-helper cs)
+           (Ret))]))
 
+  
+(define (fun-case-helper cs)
+    (match cs
+      [(cons (FunRest xs x e) l)
+        (seq)]
+      [(cons (FunPlain xs e) l)
+        (let ((end (gensym))
+             (next (gensym)))             
+          (seq 
+               (Mov rax (length xs))
+               (Cmp rax rdx)
+               (Jne next)
+               (Jmp end)
 
+               (Label next)
+               (fun-case-helper l) ;; if the amuont of arguments is different
+               (Ret)
 
+               (Label end)
+               (compile-e e (reverse xs))
+               (Add rsp (* 8 (length xs)))
+               (Ret)))]
+
+    [_ (Jmp 'err)]))
 
 ;; type CEnv = (Listof [Maybe Id])
 
