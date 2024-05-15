@@ -54,11 +54,25 @@
   (match fun
     [(FunPlain xs e)
      (seq (Label (symbol->label f))
-          ;; TODO: check arity
+          ;; TODO: check arity. Done
+          (Mov rax (length xs))
+          (Cmp rdx rax)
+          (Jne 'raise_error)
           (compile-e e (reverse xs))
           (Add rsp (* 8 (length xs)))
           (Ret))]
     ;; TODO: handle other kinds of functions
+    [(FunRest xs x e)
+      (let ((start (gensym))
+           (end (gensym)))
+          
+        (seq (Mov rax (length xs)
+             (Cmp rax rdx)
+             (Jne 'raise_error)
+             
+             
+             (compile-e e (cons (reverse xs) x))
+             (Add rsp (* 8 (+ (length xs) 1))))))]
     [_
      (seq)]))
 
