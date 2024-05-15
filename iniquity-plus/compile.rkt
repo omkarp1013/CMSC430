@@ -7,7 +7,8 @@
 
 (define rax 'rax)
 (define rdx 'rdx) ; scratch (used to hold number of arguments for arity checking)
-(define rcx 'rcx)
+(define rcx 'rcx) ; scratch
+(define r10 'r10)
 (define rbx 'rbx) ; heap
 (define rsp 'rsp) ; stack
 (define rdi 'rdi) ; arg
@@ -58,7 +59,7 @@
           ;; TODO: check arity. Done
           (Mov rax (length xs))
           (Cmp rdx rax)
-          (Jne 'raise_error)
+          (Jne 'err)
           (compile-e e (reverse xs))
           (Add rsp (* 8 (length xs)))
           (Ret))]
@@ -67,31 +68,34 @@
       (let ((start (gensym))
            (end (gensym)))
           
-        (seq (Mov rax (length xs)
+        (seq (Label (symbol->label f))
+             (Mov rax (length xs))
              (Cmp rdx rax)
-             (Jl 'raise_error)
-             (Sub rax rdx)
+             (Jl 'err)
+             (Mov r10 rdx)
 
-             (Mov rdx (value->bits '()))
+             (Mov rcx (value->bits '()))
              
-             ;; Main loop to bind last values to list
+             (Sub r10 rax)
+
+             ;; Main loop to create rest argument list
              (Label start)
-             (Cmp rax 0)
+             (Cmp r10 0)
              (Je end)
              (Mov (Offset rbx 0) rcx)
              (Pop rcx)
              (Mov (Offset rbx 8) rcx)
              (Mov rcx rbx)
-             (Or rcx type-cons)
-             (Sub rax 1)
+             (Xor rcx type-cons)
+             (Sub r10 1)
              (Add rbx 16)
              (Jmp start)
              (Label end)
              
              (Push rcx)
-             (compile-e e (cons (reverse xs) x))
+             (compile-e e (cons x (reverse xs)))
              (Add rsp (* 8 (+ (length xs) 1)))
-             (Ret))))]
+             (Ret)))]
     [_
      (seq)]))
 
@@ -216,8 +220,32 @@
 
 ;; Id [Listof Expr] Expr CEnv -> Asm
 (define (compile-apply f es e c)
-  ;; TODO: implement apply
-  (seq))
+  ;; TODO: implement apply. Done?
+  (let ((start (gensym))
+       (end (gensym))
+       (return (gensym)))
+    (seq  (Lea rax return)
+          (Push rax)
+          (Mov rdx (length es))
+
+          (compile-es es (cons #f c))
+          (compile-e e (append es (cons #f c)))
+
+          (Label start)
+          (Cmp rax (value->bits '()))
+          (Je end)
+
+          (Xor rax type-cons)
+          (Mov r10 (Offset rax 8))
+          (Add rdx 1)
+          (Push r10)
+          (Mov rax (Offset rax 0))
+          (Jmp start)
+
+          (Label end)
+
+          (Jmp (symbol->label f))
+          (Label return))))
 
 ;; [Listof Expr] CEnv -> Asm
 (define (compile-es es c)
