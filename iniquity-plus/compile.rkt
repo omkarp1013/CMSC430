@@ -7,6 +7,7 @@
 
 (define rax 'rax)
 (define rdx 'rdx) ; scratch (used to hold number of arguments for arity checking)
+(define rcx 'rcx)
 (define rbx 'rbx) ; heap
 (define rsp 'rsp) ; stack
 (define rdi 'rdi) ; arg
@@ -67,12 +68,30 @@
            (end (gensym)))
           
         (seq (Mov rax (length xs)
-             (Cmp rax rdx)
-             (Jne 'raise_error)
+             (Cmp rdx rax)
+             (Jl 'raise_error)
+             (Sub rax rdx)
+
+             (Mov rdx (value->bits '()))
              
+             ;; Main loop to bind last values to list
+             (Label start)
+             (Cmp rax 0)
+             (Je end)
+             (Mov (Offset rbx 0) rcx)
+             (Pop rcx)
+             (Mov (Offset rbx 8) rcx)
+             (Mov rcx rbx)
+             (Or rcx type-cons)
+             (Sub rax 1)
+             (Add rbx 16)
+             (Jmp start)
+             (Label end)
              
+             (Push rcx)
              (compile-e e (cons (reverse xs) x))
-             (Add rsp (* 8 (+ (length xs) 1))))))]
+             (Add rsp (* 8 (+ (length xs) 1)))
+             (Ret))))]
     [_
      (seq)]))
 
