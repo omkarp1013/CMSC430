@@ -105,7 +105,40 @@
 (define (fun-case-helper cs)
     (match cs
       [(cons (FunRest xs x e) l)
-        (seq)]
+        (let ((start (gensym))
+             (end (gensym))
+             (invalid (gensym)))
+             
+          (seq (Mov rax (length xs))
+               (Cmp rdx rax)
+               (Jl invalid)
+               
+               (Mov r10 rdx)
+               (Mov rcx (value->bits '()))
+               (Sub r10 rax)
+
+               ;; Main loop to create rest argument list
+               (Label start)
+               (Cmp r10 0)
+               (Je end)
+               (Mov (Offset rbx 0) rcx)
+               (Pop rcx)
+               (Mov (Offset rbx 8) rcx)
+               (Mov rcx rbx)
+               (Xor rcx type-cons)
+               (Sub r10 1)
+               (Add rbx 16)
+               (Jmp start)
+               (Label end)
+                
+               (Push rcx)
+               (compile-e e (cons x (reverse xs)))
+               (Add rsp (* 8 (+ (length xs) 1)))
+               (Ret)
+
+               (Label invalid)
+               (fun-case-helper l)
+               (Ret)))]
       [(cons (FunPlain xs e) l)
         (let ((end (gensym))
              (next (gensym)))             
